@@ -1,6 +1,9 @@
-import sys, getopt
+import getopt
+import sys
+
 from direct_ping import *
 from reverse_ping import *
+
 
 def main(argv):
     count = 1
@@ -9,14 +12,16 @@ def main(argv):
     client = "127.0.0.1"
     destination = ""
     try:
-        opts, args = getopt.getopt(argv,"hvqs:c:prxd:",["help","verbose","quiet","server=","count=","ping","reverse","proxy","dest="])
+        opts, args = getopt.getopt(argv, "hvqs:c:prxd:",
+                                   ["help", "verbose", "quiet", "server=", "count=", "ping", "reverse", "proxy",
+                                    "dest="])
     except getopt.GetoptError:
         print ('Option selected does not exist or requires input, for help type tp_ping.py -h')
         sys.exit(2)
     for opt, arg in opts:
-        if opt in ('-h','--help'):
+        if opt in ('-h', '--help'):
             print ('usage : tp_ping . py [ - h ] [ - v | -q ] [ - s ADDR ] [ - c COUNT ] [ -p | -r | -x ] [ - d ADDR ]')
-            print ('\n') 
+            print ('\n')
             print ('optional arguments :')
             print ('-h , -- help show this help message and exit')
             print ('-v , -- verbose increase output verbosity')
@@ -45,7 +50,8 @@ def main(argv):
         if opt in ('-d', "--dest"):
             print ('destination')
 
-if __name__ == "__main__":
-   main(sys.argv[1:])
 
-#use timeit.timeit() for time measuring
+if __name__ == "__main__":
+    main(sys.argv[1:])
+
+# use timeit.timeit() for time measuring
