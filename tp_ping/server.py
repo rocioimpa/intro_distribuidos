@@ -2,6 +2,8 @@ import socket
 import sys
 
 # Create a TCP/IP socket
+import reverse_ping
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
@@ -21,11 +23,18 @@ while True:
 
         # Receive the data in small chunks and retransmit it
         while True:
-            data = connection.recv(16)
+            data = connection.recv(10000)
+
             print('received {!r}'.format(data))
             if data:
-                print('sending data back to the client')
-                connection.sendall(data)
+
+                if data == 'reverse':
+                    print("server performing ping against client")
+                    reverse_ping.ping(connection, 4)
+
+                else:
+                    connection.sendall(data)
+
             else:
                 print('no data from', client_address)
                 break

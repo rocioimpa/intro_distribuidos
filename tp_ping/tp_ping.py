@@ -1,7 +1,4 @@
 import getopt
-import sys
-
-import ping
 
 from direct_ping import *
 from reverse_ping import *
@@ -46,7 +43,7 @@ def main(argv):
         if opt in ('-p', "--ping"):
             direct_ping(int(count), verbose)
         if opt in ('-r', "--reverse"):
-            reverse_ping(int(count), verbose)
+            print("reverse")
         if opt in ('-x', "--proxy"):
             print ('Proxy selected')
         if opt in ('-d', "--dest"):
@@ -56,7 +53,11 @@ def main(argv):
 if __name__ == "__main__":
     main(sys.argv[1:])
 
-    ping = ping.Ping()
-    ping.ping(count=3)
+    print(":::: performing direct ping ::::")
+    direct_ping(4)
+
+    print(":::: performing reverse ping ::::")
+    reverse_ping(4)
+
 
 # use timeit.timeit() for time measuring
