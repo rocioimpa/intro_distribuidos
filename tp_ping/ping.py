@@ -6,11 +6,12 @@ import time
 
 class Ping:
 
-    def __init__(self, server_address=('localhost', 10000)):
+    def __init__(self, server_address=('localhost', 10000), ping_type='ping'):
         self.server_address = server_address
+        self.type = ping_type
         self.timeout = 1000
         self.sequence_number = 0
-        self.max_wait = 1000 # ms
+        self.max_wait = 1000  # ms
 
     def ping(self, count=1):
         my_socket = self.make_socket()
@@ -88,4 +89,4 @@ class Ping:
 
     def _wait_until_next(self, delay):
         if self.max_wait > delay:
-            time.sleep((self.max_wait - delay)/1000)
+            time.sleep((self.max_wait - delay) / 1000)

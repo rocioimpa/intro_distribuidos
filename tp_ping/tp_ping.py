@@ -1,6 +1,8 @@
 import getopt
 import sys
 
+import ping
+
 from direct_ping import *
 from reverse_ping import *
 
@@ -53,5 +55,8 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
+    ping = ping.Ping()
+    ping.ping(count=3)
 
 # use timeit.timeit() for time measuring
