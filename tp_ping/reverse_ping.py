@@ -2,6 +2,7 @@ import client
 import socket
 import sys
 import time
+import calculations as calc
 
 server_address = ('localhost', 10000)
 client_address = "127.0.0.1"
@@ -9,7 +10,7 @@ timeout_seconds = 1
 max_wait = 1000  # ms
 
 
-def reverse_ping(count=1):
+def reverse_ping(count, verbose):
     my_socket = client.make_socket()
     send_reverse_command(my_socket)  # send a message to server indicating the reverse operation
 

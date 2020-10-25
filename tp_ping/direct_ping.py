@@ -2,6 +2,7 @@ import sys
 import time
 import socket
 import client
+import calculations as calc
 
 server_address = ('localhost', 10000)
 client_address = "127.0.0.1"
@@ -9,31 +10,62 @@ timeout_seconds = 1
 max_wait = 1000  # ms
 
 
-def direct_ping(count):
+def direct_ping(count, verbose):
     my_socket = client.make_socket()
-    sequence_number = 0
+    i = 0
+    sequence_number = 1
+    all_rtts = []
+    #total_time = 
 
-    for i in range(0, count):
-        send_time = send(my_socket)
-        receive_time, packet = receive(my_socket)
+    try: 
+        while True: 
+            send_time = send(my_socket)
+            receive_time, packet = receive(my_socket)
 
-        rtt_time = calc_delay(send_time, receive_time)
-        packet_size = sys.getsizeof(packet)
+            rtt_time = calc_delay(send_time, receive_time)
+            packet_size = sys.getsizeof(packet)
 
-        msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
-            packet_size,
-            server_address,
-            client_address,
-            rtt_time
-        )
+            msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
+                packet_size,
+                server_address,
+                sequence_number,
+                rtt_time
+            )
 
-        sequence_number += 1
-        wait_until_next(rtt_time)
+            all_rtts.append(rtt_time)
 
-        print(msg)
+            sequence_number += 1
+            wait_until_next(rtt_time)
 
+            if verbose: 
+                print(msg)
+
+            i += 1
+            if count != 0 and i == count:
+                break
+
+    except KeyboardInterrupt:
+        close_socket(my_socket, server_address, all_rtts, sequence_number)
+
+    close_socket(my_socket, server_address, all_rtts, sequence_number)
+
+
+def close_socket(my_socket, server_address, all_rtts, sequence_number):
     print('closing socket')
     my_socket.close()
+    display_summary(server_address, all_rtts, sequence_number)
+    
+
+def display_summary(server_address, all_rtts, sequence_number):
+    min_rtt = calc.calculate_min_rtt(all_rtts)
+    max_rtt = calc.calculate_max_rtt(all_rtts)
+    avg_rtt = calc.calculate_avg_rtt(all_rtts, sequence_number)
+    mdev_rtt = calc.calculate_mdev_rtt(all_rtts, sequence_number)
+    #packet_loss = 0
+
+    print('--- {} ping statistics ---'.format(server_address))
+    print('{} packets transmitted, {} received, {} %packet loss, time {:.3f}ms'.format(0, 0, 0, 0))
+    print('rtt min/avg/max/mdev = {:.3f}/{:.3f}/{:.3f}/{:.3f} ms'.format(min_rtt, max_rtt, avg_rtt, mdev_rtt))
 
 
 def make_socket():
