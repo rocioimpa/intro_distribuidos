@@ -15,6 +15,7 @@ def reverse_ping(count, verbose):
     send_reverse_command(my_socket, count)  # send a message to server indicating the reverse operation
     all_rtts = []
     sequence_number = 0
+    i = 0
 
     try: 
         while True:
@@ -22,12 +23,37 @@ def reverse_ping(count, verbose):
 
             print('received {!r}'.format(data))
             if data:
-                print('sending data back to the server')
-                my_socket.sendall(data)
+                if 'response' in data.decode():
+                    response = data.decode()
+                    parsed_response = response.split(',')
+
+                    packet_size = int(parsed_response[1])
+                    sequence_number = int(parsed_response[2])
+                    rtt_time = float(parsed_response[3])
+
+                    msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
+                        packet_size,
+                        client_address,
+                        sequence_number,
+                        rtt_time
+                    )
+                    
+                    all_rtts.append(rtt_time)
+
+                    if verbose: 
+                        print(msg)
+                    
+                    i += 1
+                    if count != 0 and i == count:
+                        break
+                
+                else: 
+                    print('sending data back to the server')
+                    my_socket.sendall(data)
+
             else:
                 print('no data from')
                 break
-            count += 1
     except KeyboardInterrupt: 
         pass
 
@@ -57,6 +83,11 @@ def ping(server_socket, count):
                 rtt_time
             )
 
+            print('sending results to client')
+            results = "response,{},{},{:.3f}".format(packet_size,sequence_number,rtt_time)
+            
+            send_results(server_socket,results)
+
             sequence_number += 1
             wait_until_next(rtt_time)
 
@@ -75,6 +106,8 @@ def send_reverse_command(my_socket, count):
     my_socket.sendall(message.encode('utf-8'))
     return send_time
 
+def send_results(my_socket, msg):
+    my_socket.sendall(msg.encode('utf-8'))
 
 def send(my_socket):
     packet = build_packet()
@@ -100,7 +133,7 @@ def receive(my_socket):
 
 # TODO: define message structure
 def build_packet():
-    message = b'ping message'
+    message = b'ping'
     return message
 
 
