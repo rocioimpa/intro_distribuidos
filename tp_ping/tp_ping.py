@@ -2,13 +2,14 @@ import getopt
 
 from direct_ping import *
 from reverse_ping import *
+#from proxy_ping import *
 
 
 def main(argv):
     count = 0
     verbose = True
-    server = "127.0.0.1"
-    client = "127.0.0.1"
+    server_address = ('localhost', 10000)
+    client_address = "127.0.0.1"
     destination = ""
     operation_type = 'direct'
 
@@ -39,7 +40,7 @@ def main(argv):
         if opt in ('-q', "--quiet"):
             verbose = False
         if opt in ('-s', "--server"):
-            print ('server')
+            server_address = arg
         if opt in ('-c', "--count"):
             count = arg
         if opt in ('-p', "--ping"):
@@ -47,16 +48,24 @@ def main(argv):
         if opt in ('-r', "--reverse"):
             operation_type = 'reverse'
         if opt in ('-x', "--proxy"):
-            print ('Proxy selected')
+            operation_type = 'proxy'
         if opt in ('-d', "--dest"):
-            print ('destination')
+            destination = arg
+
+    print('TP-PING v0.1')
+    print('Operation: {} Ping'.format(operation_type.title()))
+    print('Server Address: {}'.format(server_address))
+    print('Client Address: {}'.format(client_address))
 
     if operation_type == 'direct':
         print(":::: performing direct ping ::::")
-        direct_ping(int(count), verbose)
+        direct_ping(int(count), verbose, server_address, client_address)
     if operation_type == 'reverse':
         print(":::: performing reverse ping ::::")
-        reverse_ping(int(count), verbose)
+        reverse_ping(int(count), verbose, server_address, client_address)
+    if operation_type == 'proxy': 
+        print(":::: performing proxy ping ::::")
+        #proxy_ping(int(count), verbose, server_address, destination)
 
 
 if __name__ == "__main__":

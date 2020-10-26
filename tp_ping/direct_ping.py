@@ -4,13 +4,11 @@ import socket
 import client
 import common
 
-server_address = ('localhost', 10000)
-client_address = "127.0.0.1"
 timeout_seconds = 0.0001
 max_wait = 1000  # ms
 
 
-def direct_ping(count, verbose):
+def direct_ping(count, verbose, server_address, client_address):
     my_socket = client.make_socket()
     i = 0
     sequence_number = 1
@@ -89,8 +87,8 @@ def receive(my_socket):
 
 # TODO: define message structure
 def build_packet():
-    message = b'ping'
-    return message
+    message = 'ping'
+    return message.encode('utf-8')
 
 
 def calc_delay(send_time, receive_time):

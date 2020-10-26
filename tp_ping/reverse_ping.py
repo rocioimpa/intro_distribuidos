@@ -4,13 +4,11 @@ import sys
 import time
 import common
 
-server_address = ('localhost', 10000)
-client_address = "127.0.0.1"
 timeout_seconds = 1
 max_wait = 1000  # ms
 
 
-def reverse_ping(count, verbose):
+def reverse_ping(count, verbose, server_address, client_address):
     my_socket = client.make_socket()
     send_reverse_command(my_socket, count)  # send a message to server indicating the reverse operation
     all_rtts = []
@@ -59,7 +57,7 @@ def reverse_ping(count, verbose):
 
     common.close_socket(my_socket, server_address, all_rtts, sequence_number)
 
-def ping(server_socket, count):
+def ping(server_socket, count, client_address):
     sequence_number = 1
     i = 0
 
@@ -133,8 +131,8 @@ def receive(my_socket):
 
 # TODO: define message structure
 def build_packet():
-    message = b'ping'
-    return message
+    message = 'ping'
+    return message.encode('utf-8')
 
 
 def calc_delay(send_time, receive_time):
