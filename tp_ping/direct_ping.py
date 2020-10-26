@@ -2,7 +2,7 @@ import sys
 import time
 import socket
 import client
-import calculations as calc
+import common
 
 server_address = ('localhost', 10000)
 client_address = "127.0.0.1"
@@ -47,25 +47,7 @@ def direct_ping(count, verbose):
     except KeyboardInterrupt:
         pass
 
-    close_socket(my_socket, server_address, all_rtts, sequence_number)
-
-
-def close_socket(my_socket, server_address, all_rtts, sequence_number):
-    print('closing socket')
-    my_socket.close()
-    display_summary(server_address, all_rtts, sequence_number)
-    
-
-def display_summary(server_address, all_rtts, sequence_number):
-    min_rtt = calc.calculate_min_rtt(all_rtts)
-    max_rtt = calc.calculate_max_rtt(all_rtts)
-    avg_rtt = calc.calculate_avg_rtt(all_rtts, sequence_number)
-    mdev_rtt = calc.calculate_mdev_rtt(all_rtts, sequence_number)
-    #packet_loss = 0
-
-    print('--- {} ping statistics ---'.format(server_address))
-    print('{} packets transmitted, {} received, {} %packet loss, time {:.3f}ms'.format(0, 0, 0, 0))
-    print('rtt min/avg/max/mdev = {:.3f}/{:.3f}/{:.3f}/{:.3f} ms'.format(min_rtt, max_rtt, avg_rtt, mdev_rtt))
+    common.close_socket(my_socket, server_address, all_rtts, sequence_number)
 
 
 def make_socket():

@@ -2,7 +2,7 @@ import client
 import socket
 import sys
 import time
-import calculations as calc
+import common
 
 server_address = ('localhost', 10000)
 client_address = "127.0.0.1"
@@ -13,20 +13,25 @@ max_wait = 1000  # ms
 def reverse_ping(count, verbose):
     my_socket = client.make_socket()
     send_reverse_command(my_socket, count)  # send a message to server indicating the reverse operation
+    all_rtts = []
+    sequence_number = 0
 
-    # TODO: identify when the server stop sending ping message
-    while True:
-        data = my_socket.recv(1000)
+    try: 
+        while True:
+            data = my_socket.recv(1000)
 
-        print('received {!r}'.format(data))
-        if data:
-            print('sending data back to the server')
-            my_socket.sendall(data)
-        else:
-            print('no data from')
-            break
-        count += 1
+            print('received {!r}'.format(data))
+            if data:
+                print('sending data back to the server')
+                my_socket.sendall(data)
+            else:
+                print('no data from')
+                break
+            count += 1
+    except KeyboardInterrupt: 
+        pass
 
+    common.close_socket(my_socket, server_address, all_rtts, sequence_number)
 
 def ping(server_socket, count):
     sequence_number = 1
@@ -84,6 +89,7 @@ def receive(my_socket):
         try:
             packet = my_socket.recv(1000)
             receive_time = time.time()
+            print(packet)
         except socket.timeout:
             print("packet loss")
             return 0, None
