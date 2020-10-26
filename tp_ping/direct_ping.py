@@ -6,7 +6,7 @@ import common
 
 server_address = ('localhost', 10000)
 client_address = "127.0.0.1"
-timeout_seconds = 1
+timeout_seconds = 0.0001
 max_wait = 1000  # ms
 
 
@@ -15,27 +15,28 @@ def direct_ping(count, verbose):
     i = 0
     sequence_number = 1
     all_rtts = []
-    #total_time = 
+    #total_time =
 
     try: 
         while True: 
             send_time = send(my_socket)
             receive_time, packet = receive(my_socket)
 
-            rtt_time = calc_delay(send_time, receive_time)
-            packet_size = sys.getsizeof(packet)
+            if packet is None:
+                print("Request timed out.")
 
-            msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
-                packet_size,
-                server_address,
-                sequence_number,
-                rtt_time
-            )
+            else:
+                rtt_time = calc_delay(send_time, receive_time)
+                packet_size = sys.getsizeof(packet)
 
-            all_rtts.append(rtt_time)
+                msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
+                    packet_size,
+                    server_address,
+                    sequence_number,
+                    rtt_time
+                )
 
-            sequence_number += 1
-            wait_until_next(rtt_time)
+                all_rtts.append(rtt_time)
 
             if verbose: 
                 print(msg)
@@ -43,6 +44,9 @@ def direct_ping(count, verbose):
             i += 1
             if count != 0 and i == count:
                 break
+
+            sequence_number += 1
+            wait_until_next(rtt_time)
 
     except KeyboardInterrupt:
         pass
@@ -77,7 +81,6 @@ def receive(my_socket):
             packet, address = my_socket.recvfrom(1000)  # TODO: review this size
             receive_time = time.time()
         except socket.timeout:
-            print("packet loss")
             return 0, None
 
         # TODO: do some checks ex: check sum (?
