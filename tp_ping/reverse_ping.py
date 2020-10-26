@@ -12,11 +12,10 @@ max_wait = 1000  # ms
 
 def reverse_ping(count, verbose):
     my_socket = client.make_socket()
-    send_reverse_command(my_socket)  # send a message to server indicating the reverse operation
+    send_reverse_command(my_socket, count)  # send a message to server indicating the reverse operation
 
     # TODO: identify when the server stop sending ping message
-    count = 0
-    while count < 4:
+    while True:
         data = my_socket.recv(1000)
 
         print('received {!r}'.format(data))
@@ -29,39 +28,46 @@ def reverse_ping(count, verbose):
         count += 1
 
 
-def ping(server_socket, count=1):
-    sequence_number = 0
+def ping(server_socket, count):
+    sequence_number = 1
+    i = 0
 
-    for i in range(0, count):
+    try: 
+        while True: 
+            send_time = send(server_socket)
+            
+            try:
+                receive_time, packet = receive(server_socket)
+            except socket.timeout:
+                print("packet loss")
+                return 0, None
 
-        send_time = send(server_socket)
+            rtt_time = calc_delay(send_time, receive_time)
+            packet_size = sys.getsizeof(packet)
 
-        try:
-            receive_time, packet = receive(server_socket)
-        except socket.timeout:
-            print("packet loss")
-            return 0, None
+            msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
+                packet_size,
+                client_address,
+                sequence_number,
+                rtt_time
+            )
 
-        rtt_time = calc_delay(send_time, receive_time)
-        packet_size = sys.getsizeof(packet)
+            sequence_number += 1
+            wait_until_next(rtt_time)
 
-        msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
-            packet_size,
-            client_address,
-            sequence_number,
-            rtt_time
-        )
+            print(msg)
 
-        sequence_number += 1
-        wait_until_next(rtt_time)
-
-        print(msg)
+            i += 1
+            if count != 0 and i == count:
+                break
+    except:
+        pass
 
 
-def send_reverse_command(my_socket):
-    message = "reverse"
+def send_reverse_command(my_socket, count):
+    message = 'reverse' + str(count)
     send_time = time.time()
-    my_socket.sendall(message)
+    my_socket.sendall(message.encode('utf-8'))
     return send_time
 
 

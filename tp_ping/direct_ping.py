@@ -45,7 +45,7 @@ def direct_ping(count, verbose):
                 break
 
     except KeyboardInterrupt:
-        close_socket(my_socket, server_address, all_rtts, sequence_number)
+        pass
 
     close_socket(my_socket, server_address, all_rtts, sequence_number)
 
@@ -104,7 +104,7 @@ def receive(my_socket):
 
 # TODO: define message structure
 def build_packet():
-    message = b'ping message'
+    message = b'ping'
     return message
 
 
