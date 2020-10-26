@@ -5,11 +5,13 @@ from reverse_ping import *
 
 
 def main(argv):
-    count = 1
-    verbose = False
+    count = 0
+    verbose = True
     server = "127.0.0.1"
     client = "127.0.0.1"
     destination = ""
+    operation_type = 'direct'
+
     try:
         opts, args = getopt.getopt(argv, "hvqs:c:prxd:",
                                    ["help", "verbose", "quiet", "server=", "count=", "ping", "reverse", "proxy",
@@ -41,23 +43,24 @@ def main(argv):
         if opt in ('-c', "--count"):
             count = arg
         if opt in ('-p', "--ping"):
-            direct_ping(int(count), verbose)
+            operation_type = 'direct'
         if opt in ('-r', "--reverse"):
-            print("reverse")
+            operation_type = 'reverse'
         if opt in ('-x', "--proxy"):
             print ('Proxy selected')
         if opt in ('-d', "--dest"):
             print ('destination')
 
+    if operation_type == 'direct':
+        print(":::: performing direct ping ::::")
+        direct_ping(int(count), verbose)
+    if operation_type == 'reverse':
+        print(":::: performing reverse ping ::::")
+        reverse_ping(int(count), verbose)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-    print(":::: performing direct ping ::::")
-    direct_ping(4)
-
-    print(":::: performing reverse ping ::::")
-    reverse_ping(4)
 
 
 # use timeit.timeit() for time measuring

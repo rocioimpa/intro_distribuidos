@@ -2,6 +2,7 @@ import sys
 import time
 import socket
 import client
+import common
 
 server_address = ('localhost', 10000)
 client_address = "127.0.0.1"
@@ -9,31 +10,44 @@ timeout_seconds = 1
 max_wait = 1000  # ms
 
 
-def direct_ping(count):
+def direct_ping(count, verbose):
     my_socket = client.make_socket()
-    sequence_number = 0
+    i = 0
+    sequence_number = 1
+    all_rtts = []
+    #total_time = 
 
-    for i in range(0, count):
-        send_time = send(my_socket)
-        receive_time, packet = receive(my_socket)
+    try: 
+        while True: 
+            send_time = send(my_socket)
+            receive_time, packet = receive(my_socket)
 
-        rtt_time = calc_delay(send_time, receive_time)
-        packet_size = sys.getsizeof(packet)
+            rtt_time = calc_delay(send_time, receive_time)
+            packet_size = sys.getsizeof(packet)
 
-        msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
-            packet_size,
-            server_address,
-            client_address,
-            rtt_time
-        )
+            msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
+                packet_size,
+                server_address,
+                sequence_number,
+                rtt_time
+            )
 
-        sequence_number += 1
-        wait_until_next(rtt_time)
+            all_rtts.append(rtt_time)
 
-        print(msg)
+            sequence_number += 1
+            wait_until_next(rtt_time)
 
-    print('closing socket')
-    my_socket.close()
+            if verbose: 
+                print(msg)
+
+            i += 1
+            if count != 0 and i == count:
+                break
+
+    except KeyboardInterrupt:
+        pass
+
+    common.close_socket(my_socket, server_address, all_rtts, sequence_number)
 
 
 def make_socket():
@@ -72,7 +86,7 @@ def receive(my_socket):
 
 # TODO: define message structure
 def build_packet():
-    message = b'ping message'
+    message = b'ping'
     return message
 
 
