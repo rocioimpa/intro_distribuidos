@@ -2,7 +2,7 @@ import getopt
 
 from direct_ping import *
 from reverse_ping import *
-#from proxy_ping import *
+from proxy_ping import *
 
 
 def main(argv):
@@ -65,7 +65,7 @@ def main(argv):
         reverse_ping(int(count), verbose, server_address, client_address)
     if operation_type == 'proxy': 
         print(":::: performing proxy ping ::::")
-        #proxy_ping(int(count), verbose, server_address, destination)
+        proxy_ping(int(count), verbose, server_address, destination)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ import proxy_ping
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('localhost', 10000)
+server_address = ('localhost', 9800)
 print('starting up on {} port {}'.format(*server_address))
 sock.bind(server_address)
 

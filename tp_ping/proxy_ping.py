@@ -60,10 +60,10 @@ def proxy_ping(count, verbose, server_address, destination):
 def ping(server_socket, count, destination):
     sequence_number = 1
     i = 0
-
+    destination = ("127.0.0.1",9800)
     try: 
         while True: 
-            send_time = send(server_socket)
+            send_time = send(server_socket,destination)
             
             try:
                 receive_time, packet = receive(server_socket)
@@ -107,11 +107,11 @@ def send_proxy_command(my_socket, count, destination):
 def send_results(my_socket, msg):
     my_socket.sendall(msg.encode('utf-8'))
 
-def send(my_socket):
+def send(my_socket, destination):
     packet = build_packet()
     send_time = time.time()
 
-    my_socket.sendall(packet)
+    my_socket.sendto(packet, destination)
     return send_time
 
 
