@@ -73,21 +73,12 @@ def ping(server_socket, count, client_address):
             rtt_time = calc_delay(send_time, receive_time)
             packet_size = sys.getsizeof(packet)
 
-            msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
-                packet_size,
-                client_address,
-                sequence_number,
-                rtt_time
-            )
-
             results = "response,{},{},{:.3f}".format(packet_size,sequence_number,rtt_time)
             
             send_results(server_socket,results)
 
             sequence_number += 1
             wait_until_next(rtt_time)
-
-            #print(msg)
 
             i += 1
             if count != 0 and i == count:
@@ -97,7 +88,7 @@ def ping(server_socket, count, client_address):
 
 
 def send_reverse_command(my_socket, count):
-    message = 'reverse' + str(count)
+    message = 'reverse,{}'.format(str(count))
     send_time = time.time()
     my_socket.sendall(message.encode('utf-8'))
     return send_time
