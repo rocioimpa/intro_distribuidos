@@ -9,17 +9,17 @@ max_wait = 1000  # ms
 
 
 def reverse_ping(count, verbose, server_address, client_address):
-    my_socket = client.make_socket()
+    my_socket = client.make_socket(server_address)
     send_reverse_command(my_socket, count)  # send a message to server indicating the reverse operation
     all_rtts = []
     sequence_number = 0
     i = 0
 
     try: 
+        start_time = time.time()
         while True:
             data = my_socket.recv(1000)
 
-            print('received {!r}'.format(data))
             if data:
                 if 'response' in data.decode():
                     response = data.decode()
@@ -46,16 +46,15 @@ def reverse_ping(count, verbose, server_address, client_address):
                         break
                 
                 else: 
-                    print('sending data back to the server')
                     my_socket.sendall(data)
 
             else:
-                print('no data from')
+                print('No data received from')
                 break
     except KeyboardInterrupt: 
         pass
 
-    common.close_socket(my_socket, server_address, all_rtts, sequence_number)
+    common.close_socket(my_socket, server_address, all_rtts, sequence_number, start_time)
 
 def ping(server_socket, count, client_address):
     sequence_number = 1
@@ -68,7 +67,7 @@ def ping(server_socket, count, client_address):
             try:
                 receive_time, packet = receive(server_socket)
             except socket.timeout:
-                print("packet loss")
+                print("Packet loss")
                 return 0, None
 
             rtt_time = calc_delay(send_time, receive_time)
@@ -81,7 +80,6 @@ def ping(server_socket, count, client_address):
                 rtt_time
             )
 
-            print('sending results to client')
             results = "response,{},{},{:.3f}".format(packet_size,sequence_number,rtt_time)
             
             send_results(server_socket,results)
@@ -89,7 +87,7 @@ def ping(server_socket, count, client_address):
             sequence_number += 1
             wait_until_next(rtt_time)
 
-            print(msg)
+            #print(msg)
 
             i += 1
             if count != 0 and i == count:
@@ -120,9 +118,8 @@ def receive(my_socket):
         try:
             packet = my_socket.recv(1000)
             receive_time = time.time()
-            print(packet)
         except socket.timeout:
-            print("packet loss")
+            print("Packet loss")
             return 0, None
 
         # TODO: do some checks ex: check sum (?

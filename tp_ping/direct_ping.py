@@ -9,13 +9,13 @@ max_wait = 1000  # ms
 
 
 def direct_ping(count, verbose, server_address, client_address):
-    my_socket = client.make_socket()
+    my_socket = client.make_socket(server_address)
     i = 0
     sequence_number = 1
     all_rtts = []
-    #total_time =
 
     try: 
+        start_time = time.time()
         while True: 
             send_time = send(my_socket)
             receive_time, packet = receive(my_socket)
@@ -49,18 +49,7 @@ def direct_ping(count, verbose, server_address, client_address):
     except KeyboardInterrupt:
         pass
 
-    common.close_socket(my_socket, server_address, all_rtts, sequence_number)
-
-
-def make_socket():
-    # Create a TCP/IP socket
-    my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Connect the socket to the port where the server is listening
-    server_address = ('localhost', 10000)
-    print('connecting to {} port {}'.format(*server_address))
-    my_socket.connect(server_address)
-    return my_socket
+    common.close_socket(my_socket, server_address, all_rtts, sequence_number, start_time)
 
 
 def send(my_socket):

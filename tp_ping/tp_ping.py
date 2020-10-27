@@ -58,13 +58,11 @@ def main(argv):
     print('Client Address: {}'.format(client_address))
 
     if operation_type == 'direct':
-        print(":::: performing direct ping ::::")
         direct_ping(int(count), verbose, server_address, client_address)
     if operation_type == 'reverse':
-        print(":::: performing reverse ping ::::")
         reverse_ping(int(count), verbose, server_address, client_address)
     if operation_type == 'proxy': 
-        print(":::: performing proxy ping ::::")
+        print('proxy ping')
         #proxy_ping(int(count), verbose, server_address, destination)
 
 
