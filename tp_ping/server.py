@@ -4,6 +4,7 @@ import re
 
 # Create a TCP/IP socket
 import reverse_ping
+import proxy_ping
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -29,10 +30,22 @@ while True:
             print('received {!r}'.format(data))
             if data:
                 message = data.decode('utf-8')
+
                 if 'reverse' in message:
                     print("server performing ping against client")
                     count = int(re.findall(r'[0-9]+', message)[0] )
-                    reverse_ping.ping(connection, count)
+                    reverse_ping.ping(connection, count, client_address)
+                
+                if 'proxy' in message:
+                    parsed_message = message.split(',')
+
+                    count = int(parsed_message[1])
+                    destination = parsed_message[2]
+
+                    print("server performing ping against {}".format(destination))
+
+                    proxy_ping.ping(connection, count, destination)
+                    
                 else:
                     connection.sendall(data)
 
