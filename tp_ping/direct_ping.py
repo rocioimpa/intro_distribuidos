@@ -3,6 +3,7 @@ import time
 import socket
 import client
 import common
+from server_config import server_port_a
 
 timeout_seconds = 0.0001
 max_wait = 1000  # ms
@@ -57,7 +58,7 @@ def make_socket():
     my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the port where the server is listening
-    server_address = ('localhost', 10000)
+    server_address = ('localhost', server_port_a)
     print('connecting to {} port {}'.format(*server_address))
     my_socket.connect(server_address)
     return my_socket

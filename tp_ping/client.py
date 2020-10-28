@@ -1,7 +1,8 @@
 import socket
+from server_config import server_port_a
 
 #TODO: take value from user input
-server_address = ('localhost', 10000)
+server_address = ('localhost', server_port_a)
 
 def make_socket():
     # Create a TCP/IP socket

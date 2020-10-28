@@ -8,7 +8,7 @@ from proxy_ping import *
 def main(argv):
     count = 0
     verbose = True
-    server_address = ('localhost', 10000)
+    server_address = ('localhost', server_port_a)
     client_address = "127.0.0.1"
     destination = ""
     operation_type = 'direct'
