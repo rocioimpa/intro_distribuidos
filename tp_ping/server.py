@@ -31,7 +31,7 @@ while True:
                 message = data.decode('utf-8')
                 if 'reverse' in message:
                     print("Server performing ping against client")
-                    parsed_message = message.split()
+                    parsed_message = message.split(',')
                     count = int(parsed_message[1])
                     reverse_ping.ping(connection, count, client_address)
                 else:
