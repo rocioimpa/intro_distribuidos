@@ -3,7 +3,7 @@ import time
 import socket
 import client
 import common
-from server_config import server_port_a
+from server_config import *
 
 timeout_seconds = 0.0001
 max_wait = 1000  # ms
