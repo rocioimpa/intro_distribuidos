@@ -5,13 +5,25 @@ import re
 # Create a TCP/IP socket
 import reverse_ping
 import proxy_ping
+from server_config import *
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+used_port = server_port_a
+
+
+def start_server(server_port):
+    server_address = ('localhost', server_port)
+    sock.bind(server_address)
+    print('server started up on {} port {}'.format(*server_address))
+
+
 # Bind the socket to the port
-server_address = ('localhost', 9800)
-print('starting up on {} port {}'.format(*server_address))
-sock.bind(server_address)
+try:
+    start_server(server_port_a)
+except socket.error:
+    used_port = server_port_b
+    start_server(server_port_b)
 
 # Listen for incoming connections
 sock.listen(1)
@@ -25,7 +37,7 @@ while True:
 
         # Receive the data in small chunks and retransmit it
         while True:
-            data = connection.recv(10000)
+            data = connection.recv(used_port)
 
             print('received {!r}'.format(data))
             if data:
@@ -33,9 +45,9 @@ while True:
 
                 if 'reverse' in message:
                     print("server performing ping against client")
-                    count = int(re.findall(r'[0-9]+', message)[0] )
+                    count = int(re.findall(r'[0-9]+', message)[0])
                     reverse_ping.ping(connection, count, client_address)
-                
+
                 if 'proxy' in message:
                     parsed_message = message.split(',')
 
@@ -45,7 +57,7 @@ while True:
                     print("server performing ping against {}".format(destination))
 
                     proxy_ping.ping(connection, count, destination)
-                    
+
                 else:
                     connection.sendall(data)
 
