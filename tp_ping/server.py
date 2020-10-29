@@ -39,8 +39,8 @@ while True:
         while True:
             data = connection.recv(used_port)
 
-            print('received {!r}'.format(data))
             if data:
+                print('received {!r}'.format(data))
                 message = data.decode('utf-8')
 
                 if 'reverse' in message:
@@ -52,17 +52,16 @@ while True:
                     parsed_message = message.split(',')
 
                     count = int(parsed_message[1])
-                    destination = parsed_message[2]
+                    destination = parsed_message[2].split(':')
 
-                    print("server performing ping against {}".format(destination))
+                    print("server performing ping against {} on {}".format(destination[0], destination[1]))
 
-                    proxy_ping.ping(connection, count, destination)
+                    proxy_ping.ping(connection, count, destination[0], int(destination[1]))
 
                 else:
                     connection.sendall(data)
 
             else:
-                print('no data received from', client_address)
                 break
 
     finally:

@@ -10,7 +10,7 @@ def main(argv):
     verbose = True
     server_address = ('localhost', server_port_a)
     client_address = "127.0.0.1"
-    destination = ('localhost', server_port_b)
+    destination = 'localhost:{}'.format(server_port_b)
     operation_type = 'direct'
 
     try:

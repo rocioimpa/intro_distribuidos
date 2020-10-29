@@ -19,8 +19,8 @@ def proxy_ping(count, verbose, server_address, destination):
         while True:
             data = my_socket.recv(1000)
 
-            print('received {!r}'.format(data))
             if data:
+                print('received {!r}'.format(data))
                 if 'response' in data.decode():
                     response = data.decode()
                     parsed_response = response.split(',')
@@ -31,7 +31,7 @@ def proxy_ping(count, verbose, server_address, destination):
 
                     msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
                         packet_size,
-                        destination,
+                        server_address,
                         sequence_number,
                         rtt_time
                     )
@@ -58,16 +58,19 @@ def proxy_ping(count, verbose, server_address, destination):
     common.close_socket(my_socket, destination, all_rtts, sequence_number)
 
 
-def ping(server_socket, count, destination):
+def ping(server_socket, count, destination_ip, destination_port):
     sequence_number = 1
     i = 0
-    destination = ("127.0.0.1", 9800)
+    destination = (destination_ip, destination_port)
+    server_b_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print('connecting to {} port {}'.format(*destination))
+    server_b_socket.connect(destination)
     try:
         while True:
-            send_time = send(server_socket, destination)
+            send_time = send(server_b_socket, destination)
 
             try:
-                receive_time, packet = receive(server_socket)
+                receive_time, packet = receive(server_b_socket)
             except socket.timeout:
                 print("packet loss")
                 return 0, None
