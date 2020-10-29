@@ -33,14 +33,16 @@ while True:
             if data:
                 message = data.decode('utf-8')
                 op_code = message[0:2]
+                body = message[3:len(message)]
+                print(body)
                 if op_code == constants.OP_CODE_REVERSE:
                     print("Server performing ping against client")
-                    parsed_message = message.split(',')
-                    count = int(parsed_message[1])
+                    parsed_message = body.split(',')
+                    count = int(parsed_message[0])
                     reverse_ping.ping(connection, count, client_address)
-                if op_code == constants.OP_CODE_DIRECT:
+                if op_code == constants.OP_CODE_DIRECT and not body:
                     connection.sendall(response_message.encode('utf-8'))
-                else:
+                if op_code == constants.OP_CODE_DIRECT and body:
                     connection.sendall(response_message.encode('utf-8'))
             else:
                 print('No data received from', client_address)

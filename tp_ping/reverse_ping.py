@@ -119,7 +119,7 @@ def receive(my_socket):
 
 # TODO: define message structure
 def build_packet():
-    message = constants.PING_MESSAGE
+    message = '{},{}'.format(constants.OP_CODE_REVERSE,constants.PING_MESSAGE)
     return message.encode('utf-8')
 
 

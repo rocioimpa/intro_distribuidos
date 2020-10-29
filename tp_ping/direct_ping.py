@@ -98,7 +98,7 @@ def send_signal(my_socket):
 
 
 def build_packet():
-    message = constants.PING_MESSAGE
+    message = '{},{}'.format(constants.OP_CODE_DIRECT,constants.PING_MESSAGE)
     return message.encode('utf-8')
 
 
