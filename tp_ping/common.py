@@ -1,6 +1,9 @@
 import math
 import time
 from numpy import mean, absolute
+import socket
+
+timeout_seconds = 1
 
 
 def calculate_min_rtt(all_rtts):
@@ -43,3 +46,15 @@ def display_summary(server_address, all_rtts, sequence_number, start_time):
     print('{} packets transmitted, {} received, {:.3f}% packet loss, time {:.3f}ms'
           .format(sequence_number, len(all_rtts), packet_loss, elapsed_time))
     print('rtt min/avg/max/mdev = {:.3f}/{:.3f}/{:.3f}/{:.3f} ms'.format(min_rtt, max_rtt, avg_rtt, mdev_rtt))
+
+
+def receive_command(my_socket):
+    my_socket.settimeout(timeout_seconds)
+
+    while True:
+        try:
+            packet, address = my_socket.recvfrom(1000)
+        except socket.timeout:
+            return 0, None
+
+        return packet
