@@ -1,9 +1,12 @@
 import socket
 import sys
 import re
+import constants
 
 # Create a TCP/IP socket
 import reverse_ping
+
+response_message = '{}'.format(constants.OP_CODE_RESPONSE)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -29,14 +32,16 @@ while True:
             print('Received {!r}'.format(data))
             if data:
                 message = data.decode('utf-8')
-                if 'reverse' in message:
+                op_code = message[0:2]
+                if op_code == constants.OP_CODE_REVERSE:
                     print("Server performing ping against client")
                     parsed_message = message.split(',')
                     count = int(parsed_message[1])
                     reverse_ping.ping(connection, count, client_address)
+                if op_code == constants.OP_CODE_DIRECT:
+                    connection.sendall(response_message.encode('utf-8'))
                 else:
-                    connection.sendall(data)
-
+                    connection.sendall(response_message.encode('utf-8'))
             else:
                 print('No data received from', client_address)
                 break

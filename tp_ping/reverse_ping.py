@@ -3,10 +3,10 @@ import socket
 import sys
 import time
 import common
+import constants
 
 timeout_seconds = 1
 max_wait = 1000  # ms
-
 
 def reverse_ping(count, verbose, server_address, client_address):
     my_socket = client.make_socket(server_address)
@@ -21,7 +21,7 @@ def reverse_ping(count, verbose, server_address, client_address):
             data = my_socket.recv(1000)
 
             if data:
-                if 'response' in data.decode():
+                if constants.OP_CODE_RESPONSE in data.decode():
                     response = data.decode()
                     parsed_response = response.split(',')
 
@@ -73,7 +73,7 @@ def ping(server_socket, count, client_address):
             rtt_time = calc_delay(send_time, receive_time)
             packet_size = sys.getsizeof(packet)
 
-            results = "response,{},{},{:.3f}".format(packet_size,sequence_number,rtt_time)
+            results = "{},{},{},{:.3f}".format(constants.OP_CODE_RESPONSE,packet_size,sequence_number,rtt_time)
             
             send_results(server_socket,results)
 
@@ -88,7 +88,7 @@ def ping(server_socket, count, client_address):
 
 
 def send_reverse_command(my_socket, count):
-    message = 'reverse,{}'.format(str(count))
+    message = '{},{}'.format(constants.OP_CODE_REVERSE,str(count))
     send_time = time.time()
     my_socket.sendall(message.encode('utf-8'))
     return send_time
@@ -119,7 +119,7 @@ def receive(my_socket):
 
 # TODO: define message structure
 def build_packet():
-    message = 'ping'
+    message = constants.PING_MESSAGE
     return message.encode('utf-8')
 
 
