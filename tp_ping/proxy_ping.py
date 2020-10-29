@@ -15,7 +15,7 @@ def proxy_ping(count, verbose, server_address, destination):
     sequence_number = 0
     i = 0
 
-    try: 
+    try:
         while True:
             data = my_socket.recv(1000)
 
@@ -35,36 +35,37 @@ def proxy_ping(count, verbose, server_address, destination):
                         sequence_number,
                         rtt_time
                     )
-                    
+
                     all_rtts.append(rtt_time)
 
-                    if verbose: 
+                    if verbose:
                         print(msg)
-                    
+
                     i += 1
                     if count != 0 and i == count:
                         break
-                
-                else: 
+
+                else:
                     print('sending data back to the server')
                     my_socket.sendall(data)
 
             else:
                 print('no data from')
                 break
-    except KeyboardInterrupt: 
+    except KeyboardInterrupt:
         pass
 
     common.close_socket(my_socket, destination, all_rtts, sequence_number)
 
+
 def ping(server_socket, count, destination):
     sequence_number = 1
     i = 0
-    destination = ("127.0.0.1",9800)
-    try: 
-        while True: 
-            send_time = send(server_socket,destination)
-            
+    destination = ("127.0.0.1", 9800)
+    try:
+        while True:
+            send_time = send(server_socket, destination)
+
             try:
                 receive_time, packet = receive(server_socket)
             except socket.timeout:
@@ -82,9 +83,9 @@ def ping(server_socket, count, destination):
             )
 
             print('sending results to client')
-            results = "response,{},{},{:.3f}".format(packet_size,sequence_number,rtt_time)
-            
-            send_results(server_socket,results)
+            results = "response,{},{},{:.3f}".format(packet_size, sequence_number, rtt_time)
+
+            send_results(server_socket, results)
 
             sequence_number += 1
             wait_until_next(rtt_time)
@@ -99,13 +100,15 @@ def ping(server_socket, count, destination):
 
 
 def send_proxy_command(my_socket, count, destination):
-    message = 'proxy,{},{}'.format(str(count),destination)
+    message = 'proxy,{},{}'.format(str(count), destination)
     send_time = time.time()
     my_socket.sendall(message.encode('utf-8'))
     return send_time
 
+
 def send_results(my_socket, msg):
     my_socket.sendall(msg.encode('utf-8'))
+
 
 def send(my_socket, destination):
     packet = build_packet()

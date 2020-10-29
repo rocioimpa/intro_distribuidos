@@ -14,10 +14,10 @@ def direct_ping(count, verbose, server_address, client_address):
     i = 0
     sequence_number = 1
     all_rtts = []
-    #total_time =
+    # total_time =
 
-    try: 
-        while True: 
+    try:
+        while True:
             send_time = send(my_socket)
             receive_time, packet = receive(my_socket)
 
@@ -37,7 +37,7 @@ def direct_ping(count, verbose, server_address, client_address):
 
                 all_rtts.append(rtt_time)
 
-            if verbose: 
+            if verbose:
                 print(msg)
 
             i += 1
