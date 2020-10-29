@@ -35,18 +35,18 @@ def reverse_ping(count, verbose, server_address, client_address):
                         sequence_number,
                         rtt_time
                     )
-                    
+
                     all_rtts.append(rtt_time)
 
                     if verbose: 
                         print(msg)
-                    
+
                     i += 1
                     if count != 0 and i == count:
                         break
                 
                 else: 
-                    my_socket.sendall(data)
+                     my_socket.sendall(data)
 
             else:
                 print('No data received from')
@@ -63,7 +63,6 @@ def ping(server_socket, count, client_address):
     try: 
         while True: 
             send_time = send(server_socket)
-            
             try:
                 receive_time, packet = receive(server_socket)
             except socket.timeout:
@@ -93,6 +92,7 @@ def send_reverse_command(my_socket, count):
     my_socket.sendall(message.encode('utf-8'))
     return send_time
 
+
 def send_results(my_socket, msg):
     my_socket.sendall(msg.encode('utf-8'))
 
@@ -113,11 +113,9 @@ def receive(my_socket):
             print("Packet loss")
             return 0, None
 
-        # TODO: do some checks ex: check sum (?
         return receive_time, packet
 
 
-# TODO: define message structure
 def build_packet():
     message = '{},{}'.format(constants.OP_CODE_REVERSE,constants.PING_MESSAGE)
     return message.encode('utf-8')

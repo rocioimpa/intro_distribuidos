@@ -34,8 +34,8 @@ while True:
                 message = data.decode('utf-8')
                 op_code = message[0:2]
                 body = message[3:len(message)]
-                print(body)
-                if op_code == constants.OP_CODE_REVERSE:
+
+                if op_code == constants.OP_CODE_REVERSE and body:
                     print("Server performing ping against client")
                     parsed_message = body.split(',')
                     count = int(parsed_message[0])
