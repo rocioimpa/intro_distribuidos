@@ -5,17 +5,15 @@ import client
 import common
 import constants
 
-timeout_seconds = 0.0001
-max_wait = 1000  # ms
 
-
-def direct_ping(count, verbose, server_address, client_address):
+def direct_ping(count, verbose, server_address):
     my_socket = client.make_socket(server_address)
     start_time = send_signal(my_socket)  # establish the connection by sending a direct ping to the server
     response = common.receive_command(my_socket)  # await for the server's response
-    print(response)
+
     i = 0
     sequence_number = 1
+    rtt_time = 2
     all_rtts = []
 
     if response is not None and response.decode() == constants.OP_CODE_RESPONSE:
@@ -65,11 +63,11 @@ def send(my_socket):
 
 
 def receive(my_socket):
-    my_socket.settimeout(timeout_seconds)
+    my_socket.settimeout(constants.TIMEOUT_SECONDS)
 
     while True:
         try:
-            packet, address = my_socket.recvfrom(1000)  # TODO: review this size
+            packet, address = my_socket.recvfrom(constants.SIZE_MESSAGE)
             receive_time = time.time()
         except socket.timeout:
             return 0, None
@@ -97,5 +95,5 @@ def calc_delay(send_time, receive_time):
 
 
 def wait_until_next(delay):
-    if max_wait > delay:
-        time.sleep((max_wait - delay) / 1000)
+    if constants.MAX_WAIT > delay:
+        time.sleep((constants.MAX_WAIT - delay) / 1000)

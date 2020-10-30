@@ -19,7 +19,7 @@ def reverse_ping(count, verbose, server_address, client_address):
     try:
         start_time = time.time()
         while True:
-            data = my_socket.recv(1000)
+            data = my_socket.recv(constants.SIZE_MESSAGE)
 
             if data:
                 if constants.OP_CODE_RESPONSE in data.decode():
@@ -65,6 +65,7 @@ def ping(server_socket, count, client_address):
     try:
         while True:
             send_time = send(server_socket)
+
             try:
                 receive_time, packet = receive(server_socket)
             except socket.timeout:
@@ -110,7 +111,7 @@ def send(my_socket):
 def receive(my_socket):
     while True:
         try:
-            packet = my_socket.recv(1000)
+            packet = my_socket.recv(constants.SIZE_MESSAGE)
             receive_time = time.time()
         except socket.timeout:
             print("Packet loss")

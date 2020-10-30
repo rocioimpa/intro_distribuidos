@@ -1,18 +1,17 @@
 import socket
 import sys
-import re
+
 import constants
 
 # Create a TCP/IP socket
 import reverse_ping
 import proxy_ping
-from server_config import *
 
 response_message = '{}'.format(constants.OP_CODE_RESPONSE)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-used_port = server_port_a
+used_port = constants.DEFAULT_PORT_A
 
 
 def start_server(server_port):
@@ -23,10 +22,17 @@ def start_server(server_port):
 
 # Bind the socket to the port
 try:
-    start_server(server_port_a)
+    used_port = int(sys.argv[1])
+except IndexError:
+    used_port = constants.DEFAULT_PORT_A
+
+try:
+    start_server(used_port)
 except socket.error:
-    used_port = server_port_b
-    start_server(server_port_b)
+    if used_port is not None:
+        print("Port {} is in use!".format(used_port))
+    used_port = constants.DEFAULT_PORT_B
+    start_server(constants.DEFAULT_PORT_B)
 
 # Listen for incoming connections
 sock.listen(1)
