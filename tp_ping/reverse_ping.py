@@ -58,7 +58,7 @@ def reverse_ping(count, verbose, server_address, client_address):
     common.close_socket(my_socket, server_address, all_rtts, sequence_number, start_time)
 
 
-def ping(server_socket, count):
+def ping(server_socket, count, client_address):
     sequence_number = 1
     i = 0
 
