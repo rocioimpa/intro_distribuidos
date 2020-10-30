@@ -11,16 +11,16 @@ max_wait = 1000  # ms
 
 def direct_ping(count, verbose, server_address, client_address):
     my_socket = client.make_socket(server_address)
-    start_time = send_signal(my_socket) # establish the connection by sending a direct ping to the server
-    response = common.receive_command(my_socket) # await for the server's response
-    print (response)
+    start_time = send_signal(my_socket)  # establish the connection by sending a direct ping to the server
+    response = common.receive_command(my_socket)  # await for the server's response
+    print(response)
     i = 0
     sequence_number = 1
     all_rtts = []
 
     if response is not None and response.decode() == constants.OP_CODE_RESPONSE:
-        try: 
-            while True: 
+        try:
+            while True:
                 send_time = send(my_socket)
                 receive_time, packet = receive(my_socket)
 
@@ -40,7 +40,7 @@ def direct_ping(count, verbose, server_address, client_address):
 
                     all_rtts.append(rtt_time)
 
-                if verbose: 
+                if verbose:
                     print(msg)
 
                 i += 1
@@ -86,7 +86,7 @@ def send_signal(my_socket):
 
 
 def build_packet():
-    message = '{},{}'.format(constants.OP_CODE_DIRECT,constants.PING_MESSAGE)
+    message = '{},{}'.format(constants.OP_CODE_DIRECT, constants.PING_MESSAGE)
     return message.encode('utf-8')
 
 

@@ -22,7 +22,7 @@ def calculate_mdev_rtt(all_rtts, sequence_number):
     return mean(absolute(all_rtts - mean(all_rtts))) if len(all_rtts) > 0 else 0
 
 
-def calculate_elapsed_time(start_time,end_time):
+def calculate_elapsed_time(start_time, end_time):
     return (end_time - start_time) * 1000
 
 

@@ -9,19 +9,20 @@ timeout_seconds = 1
 max_wait = 1000  # ms
 
 
-def reverse_ping(count, verbose, server_address, client_address):
+def proxy_ping(count, verbose, server_address, destination):
     my_socket = client.make_socket(server_address)
-    send_reverse_command(my_socket, count)  # send a message to server indicating the reverse operation
+    send_proxy_command(my_socket, count, destination)  # send a message to server indicating the proxy operation
     all_rtts = []
     sequence_number = 0
     i = 0
 
+    start_time = time.time()
     try:
-        start_time = time.time()
         while True:
             data = my_socket.recv(1000)
 
             if data:
+                print('Received {!r}'.format(data))
                 if constants.OP_CODE_RESPONSE in data.decode():
                     response = data.decode()
                     parsed_response = response.split(',')
@@ -32,7 +33,7 @@ def reverse_ping(count, verbose, server_address, client_address):
 
                     msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
                         packet_size,
-                        client_address,
+                        server_address,
                         sequence_number,
                         rtt_time
                     )
@@ -50,23 +51,25 @@ def reverse_ping(count, verbose, server_address, client_address):
                     my_socket.sendall(data)
 
             else:
-                print('No data received from')
                 break
     except KeyboardInterrupt:
         pass
 
-    common.close_socket(my_socket, server_address, all_rtts, sequence_number, start_time)
+    common.close_socket(my_socket, destination, all_rtts, sequence_number, start_time)
 
 
-def ping(server_socket, count, client_address):
+def ping(server_socket, count, destination_ip, destination_port):
     sequence_number = 1
     i = 0
-
+    destination = (destination_ip, destination_port)
+    server_b_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_b_socket.connect(destination)
     try:
         while True:
-            send_time = send(server_socket)
+            send_time = send(server_b_socket, destination)
+
             try:
-                receive_time, packet = receive(server_socket)
+                receive_time, packet = receive(server_b_socket)
             except socket.timeout:
                 print("Packet loss")
                 return 0, None
@@ -74,6 +77,7 @@ def ping(server_socket, count, client_address):
             rtt_time = calc_delay(send_time, receive_time)
             packet_size = sys.getsizeof(packet)
 
+            print('Sending results to client')
             results = "{},{},{},{:.3f}".format(constants.OP_CODE_RESPONSE, packet_size, sequence_number, rtt_time)
 
             send_results(server_socket, results)
@@ -88,8 +92,8 @@ def ping(server_socket, count, client_address):
         pass
 
 
-def send_reverse_command(my_socket, count):
-    message = '{},{}'.format(constants.OP_CODE_REVERSE, str(count))
+def send_proxy_command(my_socket, count, destination):
+    message = '{},{},{}'.format(constants.OP_CODE_PROXY, str(count), destination)
     send_time = time.time()
     my_socket.sendall(message.encode('utf-8'))
     return send_time
@@ -99,11 +103,11 @@ def send_results(my_socket, msg):
     my_socket.sendall(msg.encode('utf-8'))
 
 
-def send(my_socket):
+def send(my_socket, destination):
     packet = build_packet()
     send_time = time.time()
 
-    my_socket.sendall(packet)
+    my_socket.sendto(packet, destination)
     return send_time
 
 
@@ -120,7 +124,7 @@ def receive(my_socket):
 
 
 def build_packet():
-    message = '{},{}'.format(constants.OP_CODE_REVERSE, constants.PING_MESSAGE)
+    message = '{},{}'.format(constants.OP_CODE_DIRECT, constants.PING_MESSAGE)
     return message.encode('utf-8')
 
 

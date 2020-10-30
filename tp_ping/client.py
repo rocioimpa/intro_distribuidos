@@ -1,5 +1,6 @@
 import socket
 
+
 def make_socket(server_address):
     # Create a TCP/IP socket
     my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

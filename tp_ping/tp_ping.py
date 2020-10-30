@@ -2,15 +2,16 @@ import getopt
 
 from direct_ping import *
 from reverse_ping import *
-#from proxy_ping import *
+from proxy_ping import *
+from server_config import server_port_a, server_port_b
 
 
 def main(argv):
     count = 0
     verbose = True
-    server_address = ('localhost', 10000)
+    server_address = ('localhost', server_port_a)
     client_address = "127.0.0.1"
-    destination = ""
+    destination = 'localhost:{}'.format(server_port_b)
     operation_type = 'direct'
 
     try:
@@ -18,22 +19,22 @@ def main(argv):
                                    ["help", "verbose", "quiet", "server=", "count=", "ping", "reverse", "proxy",
                                     "dest="])
     except getopt.GetoptError:
-        print ('Option selected does not exist or requires input, for help type tp_ping.py -h')
+        print('Option selected does not exist or requires input, for help type tp_ping.py -h')
         sys.exit(2)
     for opt, arg in opts:
         if opt in ('-h', '--help'):
-            print ('usage : tp_ping . py [ - h ] [ - v | -q ] [ - s ADDR ] [ - c COUNT ] [ -p | -r | -x ] [ - d ADDR ]')
-            print ('\n')
-            print ('optional arguments :')
-            print ('-h , -- help show this help message and exit')
-            print ('-v , -- verbose increase output verbosity')
-            print ('-q , -- quiet decrease output verbosity')
-            print ('-s , -- server server IP address')
-            print ('-c , -- count stop after < count > replies')
-            print ('-p , -- ping direct ping')
-            print ('-r , -- reverse reverse ping')
-            print ('-x , -- proxy proxy pin')
-            print ('-d , -- dest destination IP address)')
+            print('usage : tp_ping . py [ - h ] [ - v | -q ] [ - s ADDR ] [ - c COUNT ] [ -p | -r | -x ] [ - d ADDR ]')
+            print('\n')
+            print('optional arguments :')
+            print('-h , -- help show this help message and exit')
+            print('-v , -- verbose increase output verbosity')
+            print('-q , -- quiet decrease output verbosity')
+            print('-s , -- server server IP address')
+            print('-c , -- count stop after < count > replies')
+            print('-p , -- ping direct ping')
+            print('-r , -- reverse reverse ping')
+            print('-x , -- proxy proxy pin')
+            print('-d , -- dest destination IP address)')
             sys.exit()
         if opt in ('-v', "--verbose"):
             verbose = True
@@ -61,13 +62,11 @@ def main(argv):
         direct_ping(int(count), verbose, server_address, client_address)
     if operation_type == 'reverse':
         reverse_ping(int(count), verbose, server_address, client_address)
-    if operation_type == 'proxy': 
-        print('proxy ping')
-        #proxy_ping(int(count), verbose, server_address, destination)
+    if operation_type == 'proxy':
+        proxy_ping(int(count), verbose, server_address, destination)
 
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
 
 # use timeit.timeit() for time measuring
