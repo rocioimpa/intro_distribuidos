@@ -5,9 +5,6 @@ import time
 import common
 import constants
 
-timeout_seconds = 1
-max_wait = 1000  # ms
-
 
 def proxy_ping(count, verbose, server_address, destination):
     my_socket = client.make_socket(server_address)
@@ -19,7 +16,7 @@ def proxy_ping(count, verbose, server_address, destination):
     start_time = time.time()
     try:
         while True:
-            data = my_socket.recv(1000)
+            data = my_socket.recv(constants.SIZE_MESSAGE)
 
             if data:
                 if constants.OP_CODE_RESPONSE in data.decode():
@@ -73,7 +70,7 @@ def ping(server_socket, count, destination_ip, destination_port):
                 print("Packet loss")
                 return 0, None
 
-            rtt_time = calc_delay(send_time, receive_time)
+            rtt_time = common.calc_delay(send_time, receive_time)
             packet_size = sys.getsizeof(packet)
 
             print('Sending results to client')
@@ -82,7 +79,7 @@ def ping(server_socket, count, destination_ip, destination_port):
             send_results(server_socket, results)
 
             sequence_number += 1
-            wait_until_next(rtt_time)
+            common.wait_until_next(rtt_time)
 
             i += 1
             if count != 0 and i == count:
@@ -125,14 +122,3 @@ def receive(my_socket):
 def build_packet():
     message = '{},{}'.format(constants.OP_CODE_DIRECT, constants.PING_MESSAGE)
     return message.encode('utf-8')
-
-
-def calc_delay(send_time, receive_time):
-    if not send_time or not receive_time:
-        return -1
-    return (receive_time - send_time) * 1000
-
-
-def wait_until_next(delay):
-    if max_wait > delay:
-        time.sleep((max_wait - delay) / 1000)

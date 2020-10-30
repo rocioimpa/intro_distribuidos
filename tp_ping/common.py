@@ -3,6 +3,7 @@ import time
 from numpy import mean, absolute
 import socket
 
+import constants
 from constants import SIZE_MESSAGE
 
 timeout_seconds = 1
@@ -60,3 +61,14 @@ def receive_command(my_socket):
             return 0, None
 
         return packet
+
+
+def wait_until_next(delay):
+    if constants.MAX_WAIT > delay:
+        time.sleep((constants.MAX_WAIT - delay) / 1000)
+
+
+def calc_delay(send_time, receive_time):
+    if not send_time or not receive_time:
+        return -1
+    return (receive_time - send_time) * 1000
