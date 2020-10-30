@@ -22,7 +22,6 @@ def proxy_ping(count, verbose, server_address, destination):
             data = my_socket.recv(1000)
 
             if data:
-                print('Received {!r}'.format(data))
                 if constants.OP_CODE_RESPONSE in data.decode():
                     response = data.decode()
                     parsed_response = response.split(',')
