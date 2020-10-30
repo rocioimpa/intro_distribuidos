@@ -28,12 +28,12 @@ El server levantará por default en el puerto *10000* si no se le especifica alg
 
 Para ejecutar el comando ping directo contra el server (levantado en el puerto 9000):
 
-    python tp_ping.py -c 5 -p -s 127.0.0.1:9000
+    python tp_ping.py -c 5 -s 127.0.0.1:9000 -p
 
 Para ejecutar el comando ping reverso, 
 
-	python tp_ping.py -c 5 -p -s 127.0.0.1:9000 -r
+	python tp_ping.py -c 5 -s 127.0.0.1:9000 -r
 
 Para ejecutar el comando ping proxy, hay que levantar otra instancia del server (ej: 9001):
 
-    python tp_ping.py -c 5 -p -s 127.0.0.1:9000 -x -d 127.0.0.1:9001
+    python tp_ping.py -c 5 -s 127.0.0.1:9000 -d 127.0.0.1:9001 -x 
