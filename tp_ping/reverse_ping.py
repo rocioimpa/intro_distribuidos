@@ -58,7 +58,7 @@ def reverse_ping(count, verbose, server_address, client_address):
     common.close_socket(my_socket, server_address, all_rtts, sequence_number, start_time)
 
 
-def ping(server_socket, count, client_address):
+def ping(server_socket, count):
     sequence_number = 1
     i = 0
 
@@ -72,7 +72,7 @@ def ping(server_socket, count, client_address):
                 print("Packet loss")
                 return 0, None
 
-            rtt_time = calc_delay(send_time, receive_time)
+            rtt_time = common.calc_delay(send_time, receive_time)
             packet_size = sys.getsizeof(packet)
 
             results = "{},{},{},{:.3f}".format(constants.OP_CODE_RESPONSE, packet_size, sequence_number, rtt_time)
@@ -80,7 +80,7 @@ def ping(server_socket, count, client_address):
             send_results(server_socket, results)
 
             sequence_number += 1
-            wait_until_next(rtt_time)
+            common.wait_until_next(rtt_time)
 
             i += 1
             if count != 0 and i == count:
@@ -123,14 +123,3 @@ def receive(my_socket):
 def build_packet():
     message = '{},{}'.format(constants.OP_CODE_REVERSE, constants.PING_MESSAGE)
     return message.encode('utf-8')
-
-
-def calc_delay(send_time, receive_time):
-    if not send_time or not receive_time:
-        return -1
-    return (receive_time - send_time) * 1000
-
-
-def wait_until_next(delay):
-    if max_wait > delay:
-        time.sleep((max_wait - delay) / 1000)

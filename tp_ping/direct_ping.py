@@ -26,7 +26,7 @@ def direct_ping(count, verbose, server_address):
                     print("Request timed out.")
 
                 else:
-                    rtt_time = calc_delay(send_time, receive_time)
+                    rtt_time = common.calc_delay(send_time, receive_time)
                     packet_size = sys.getsizeof(packet)
 
                     msg = "{} bytes from {}: seq={} time={:.3f} ms".format(
@@ -46,7 +46,7 @@ def direct_ping(count, verbose, server_address):
                     break
 
                 sequence_number += 1
-                wait_until_next(rtt_time)
+                common.wait_until_next(rtt_time)
 
         except KeyboardInterrupt:
             pass
@@ -86,14 +86,3 @@ def send_signal(my_socket):
 def build_packet():
     message = '{},{}'.format(constants.OP_CODE_DIRECT, constants.PING_MESSAGE)
     return message.encode('utf-8')
-
-
-def calc_delay(send_time, receive_time):
-    if not send_time or not receive_time:
-        return -1
-    return (receive_time - send_time) * 1000
-
-
-def wait_until_next(delay):
-    if constants.MAX_WAIT > delay:
-        time.sleep((constants.MAX_WAIT - delay) / 1000)
