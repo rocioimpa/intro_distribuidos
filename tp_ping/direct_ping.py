@@ -72,7 +72,6 @@ def receive(my_socket):
         except socket.timeout:
             return 0, None
 
-        # TODO: do some checks ex: check sum (?
         return receive_time, packet
 
 
