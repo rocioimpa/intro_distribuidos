@@ -1,17 +1,18 @@
 import getopt
 
+from constants import DEFAULT_PORT_A, DEFAULT_PORT_B
 from direct_ping import *
 from reverse_ping import *
 from proxy_ping import *
-from server_config import server_port_a, server_port_b
 
 
 def main(argv):
+    # DEFAULT VALUES
     count = 0
     verbose = True
-    server_address = ('localhost', server_port_a)
+    server_address = ('localhost', DEFAULT_PORT_A)
     client_address = "127.0.0.1"
-    destination = 'localhost:{}'.format(server_port_b)
+    destination = 'localhost:{}'.format(DEFAULT_PORT_B)
     operation_type = 'direct'
 
     try:
@@ -41,7 +42,8 @@ def main(argv):
         if opt in ('-q', "--quiet"):
             verbose = False
         if opt in ('-s', "--server"):
-            server_address = arg
+            server_input = arg.split(":")
+            server_address = (server_input[0], int(server_input[1]))
         if opt in ('-c', "--count"):
             count = arg
         if opt in ('-p', "--ping"):
@@ -55,11 +57,11 @@ def main(argv):
 
     print('TP-PING v0.1')
     print('Operation: {} Ping'.format(operation_type.title()))
-    print('Server Address: {}'.format(server_address))
+    print('Server Address: {}'.format(server_address[0]))
     print('Client Address: {}'.format(client_address))
 
     if operation_type == 'direct':
-        direct_ping(int(count), verbose, server_address, client_address)
+        direct_ping(int(count), verbose, server_address)
     if operation_type == 'reverse':
         reverse_ping(int(count), verbose, server_address, client_address)
     if operation_type == 'proxy':
@@ -68,5 +70,3 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
-# use timeit.timeit() for time measuring

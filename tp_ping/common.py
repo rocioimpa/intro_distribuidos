@@ -3,6 +3,8 @@ import time
 from numpy import mean, absolute
 import socket
 
+from constants import SIZE_MESSAGE
+
 timeout_seconds = 1
 
 
@@ -18,7 +20,7 @@ def calculate_avg_rtt(all_rtts, sequence_number):
     return sum(all_rtts) / sequence_number if len(all_rtts) > 0 else 0
 
 
-def calculate_mdev_rtt(all_rtts, sequence_number):
+def calculate_mdev_rtt(all_rtts):
     return mean(absolute(all_rtts - mean(all_rtts))) if len(all_rtts) > 0 else 0
 
 
@@ -38,7 +40,7 @@ def display_summary(server_address, all_rtts, sequence_number, start_time):
     min_rtt = calculate_min_rtt(all_rtts)
     max_rtt = calculate_max_rtt(all_rtts)
     avg_rtt = calculate_avg_rtt(all_rtts, sequence_number)
-    mdev_rtt = calculate_mdev_rtt(all_rtts, sequence_number)
+    mdev_rtt = calculate_mdev_rtt(all_rtts)
     packet_loss = (sequence_number - float(len(all_rtts))) / sequence_number * 100
 
     print('\n')
@@ -53,7 +55,7 @@ def receive_command(my_socket):
 
     while True:
         try:
-            packet, address = my_socket.recvfrom(1000)
+            packet, address = my_socket.recvfrom(SIZE_MESSAGE)
         except socket.timeout:
             return 0, None
 
