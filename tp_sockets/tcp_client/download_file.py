@@ -9,7 +9,8 @@ def download_file(server_address, name, dst):
     sock.connect(server_address)
 
     message = '{},{}'.format(OP_CODE_DOWNLOAD, name)
-    sock.sendall(message.encode('utf-8'))
+    sock.send(message.encode('utf-8'))
+    sock.recv(MESSAGE_SIZE)
 
     size = int(sock.recv(MESSAGE_SIZE).decode())
     print("Received file size: {}".format(size))
