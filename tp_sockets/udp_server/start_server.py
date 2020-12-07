@@ -71,7 +71,7 @@ def receive_file(sock, address, storage_dir, filename, total_chunks):
             seq_numb, chunk = chunk.decode(ENCODE_TYPE).split('|')
 
             timeouts = 0
-            sock.sendto(seq_numb.encode(), addr)
+            sock.sendto('{}|{}'.format('0', seq_numb).encode(), addr)
             if seq_numb not in chunks:
                 chunks[seq_numb] = chunk
                 received_chunks += 1
@@ -86,11 +86,11 @@ def receive_file(sock, address, storage_dir, filename, total_chunks):
         return 1
 
     sock.sendto(b'done', addr)
-    write_file(chunks, filename)
+    write_file(chunks, storage_dir, filename)
 
 
-def write_file(chunks, filename):
-    file = open(filename, "wb")
+def write_file(chunks, storage, filename):
+    file = open(os.path.join(storage, filename), "wb")
     for i in range(0, len(chunks)):
         file.write(chunks[str(i)].encode(ENCODE_TYPE))
     file.close()
