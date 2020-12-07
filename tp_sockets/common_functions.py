@@ -1,6 +1,6 @@
 import types
 from constants import (ENCODE_TYPE, OP_CODE_UPLOAD, OP_CODE_DOWNLOAD,
-                       RESP_CODE_FILE_DOWNLOAD, RESP_CODE_FILE_UPLOAD)
+                       OP_CODE_DOWNLOAD_RESP, OP_CODE_UPLOAD_RESP)
 
 
 def default_file_transfer_data():
@@ -85,4 +85,4 @@ def parse_header(data, sock):
 
 def op_code_is_valid(op_code):
     return op_code in (OP_CODE_DOWNLOAD, OP_CODE_UPLOAD,
-                       RESP_CODE_FILE_UPLOAD, RESP_CODE_FILE_DOWNLOAD)
+                       OP_CODE_UPLOAD_RESP, OP_CODE_DOWNLOAD_RESP)

@@ -2,7 +2,7 @@ import socket
 import os
 import random
 
-from constants import OP_CODE_UPLOAD, CHUNK_SIZE, ENCODE_TYPE
+from constants import OP_CODE_UPLOAD, CHUNK_SIZE
 from common_functions import default_file_transfer_data, create_header
 
 
@@ -20,8 +20,9 @@ def upload_file(server_address, src, name):
     sock.connect_ex(server_address)
     data = default_file_transfer_data()
     data.connection_id = connection_id
+    data.address = server_address
     data.op_code = OP_CODE_UPLOAD
-    data.file_name = name.encode(ENCODE_TYPE)
+    data.file_name = name
     data.file_path = src
     data.file_size = len(fp_content)
     data.file_content = fp_content

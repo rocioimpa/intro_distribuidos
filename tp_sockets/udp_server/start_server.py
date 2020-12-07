@@ -4,7 +4,7 @@ import os
 import socket
 
 from constants import (OP_CODE_DOWNLOAD, OP_CODE_UPLOAD,
-                       RESP_CODE_FILE_DOWNLOAD, RESP_CODE_FILE_UPLOAD)
+                       OP_CODE_DOWNLOAD_RESP, OP_CODE_UPLOAD_RESP)
 from common_functions import (default_file_transfer_data, create_header,
                               parse_header)
 
@@ -33,7 +33,7 @@ def start_server(server_address, storage_dir):
                 return False
             else:
                 # print("Header read {}".format(data))
-                if data.operation == OP_CODE_DOWNLOAD:
+                if data.op_code == OP_CODE_DOWNLOAD:
                     try:
                         file = open(os.path.join(data.storage_dir,
                                     data.file_name), 'rb')
@@ -43,42 +43,39 @@ def start_server(server_address, storage_dir):
                         header = create_header(data.file_name,
                                                len(file_content),
                                                data.connection_id,
-                                               RESP_CODE_FILE_UPLOAD)
-                        data.outb += header + file_content
+                                               OP_CODE_UPLOAD_RESP)
+                        data.out_bytes += header + file_content
                     except Exception as e:
-                        data.outb += create_header(data.file_name, -1,
-                                                   data.connection_id,
-                                                   RESP_CODE_FILE_DOWNLOAD, -1,
-                                                   str(e))
-                        print("Error while trying to read \
-                               requested file {}: {}"
+                        data.out_bytes += create_header(data.file_name, -1,
+                                                        data.connection_id,
+                                                        OP_CODE_DOWNLOAD_RESP,
+                                                        str(e))
+                        print("Error while trying to read file {}: {}"
                               .format(data.file_name, str(e)))
 
-            while True:
-                if data.operation == OP_CODE_UPLOAD:
-                    if data.processed_total < data.file_size:
+                if data.op_code == OP_CODE_UPLOAD:
+                    if data.total_processed < data.file_size:
                         chunk_size = data.variable
                         try:
-                            recv_data = sock.recv(chunk_size)
-                            if recv_data:
+                            received_data = sock.recv(chunk_size)
+                            if received_data:
                                 print('Received {} [{}/{}] from {}'
-                                      .format(len(recv_data),
-                                              data.processed_total,
+                                      .format(len(received_data),
+                                              data.total_processed,
                                               data.file_size, data.addr))
-                                data.file_content += recv_data
-                                data.processed_total += len(recv_data)
+                                data.file_content += received_data
+                                data.total_processed += len(received_data)
                             else:
                                 print("Closing connection to {}"
                                       .format(data.addr))
                                 sock.close()
                                 return
-                        except IOError as e:  # and here it is handled
+                        except IOError as e:
                             if e.errno == errno.EWOULDBLOCK:
                                 pass
-                    if data.processed_total >= data.file_size:
-                        # File received successfully. Save to disk
-                        print("Received all the file {} on connection {}"
-                              .format(data.file_name, data.connid))
+                    if data.total_processed >= data.file_size:
+                        print("Completed file reception {} on connection {}"
+                              .format(data.file_name, data.connection_id))
                         file = open(os.path.join(data.storage_dir,
                                     data.file_name), 'wb')
                         file_content = file.write(data.file_content)
@@ -86,11 +83,11 @@ def start_server(server_address, storage_dir):
                         sock.close()
                         return
 
-                if data.outb:
+                if data.out_bytes:
                     # Send whatever is on the output buffer.
-                    chunk_size = data.variable
+                    chunk_size = data.out_bytes
                     try:
-                        sent = sock.send(data.outb[:chunk_size])
+                        sent = sock.send(data.out_bytes[:chunk_size])
                     except BrokenPipeError as e:
                         print("Client closed connection unexpectedly ({})"
                               .format(e))
@@ -98,8 +95,8 @@ def start_server(server_address, storage_dir):
                     if sent:
                         print("Sent data to client {} bytes"
                               .format(sent if sent else 0))
-                    data.outb = data.outb[sent:]
-                elif data.operation == OP_CODE_DOWNLOAD:
+                    data.out_bytes = data.out_bytes[sent:]
+                elif data.op_code == OP_CODE_DOWNLOAD:
                     # Sent all the data in buffer already.
                     break
             try:
