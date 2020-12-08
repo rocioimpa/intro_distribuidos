@@ -2,8 +2,9 @@ import socket
 import os
 import sys
 
+from common_functions import parse_file_to_chunks, send_file
 from constants import (OP_CODE_UPLOAD, OP_CODE_UPLOAD_RESP, CHUNK_SIZE,
-                       ENCODE_TYPE, MAX_TIMEOUT, WINDOW_SIZE)
+                       ENCODE_TYPE, MAX_TIMEOUT)
 
 
 def upload_file(server_address, src, name):
@@ -23,7 +24,7 @@ def upload_file(server_address, src, name):
                                                         server_address, sock)
 
         if ack_from_server:
-            send_file_to_upload_to_server(chunks, server_address, sock)
+            send_file(chunks, server_address, sock)
         else:
             print('Unable to send request to server. Terminating process...')
             sock.close()
@@ -32,24 +33,6 @@ def upload_file(server_address, src, name):
         print('KeyboardInterrupt signal received. Terminating process...')
         sock.close()
         sys.exit(0)
-
-
-def parse_file_to_chunks(file):
-    file_to_read = open(file, 'rb')
-    chunks = {}
-    seq_numb = 0
-
-    while True:
-        header = '{}|'.format(seq_numb)
-        chunk = file_to_read.read(CHUNK_SIZE - len(header))
-        if not chunk:
-            break
-
-        chunks[str(seq_numb)] = header + chunk.decode(ENCODE_TYPE)
-        seq_numb += 1
-
-    file_to_read.close()
-    return chunks
 
 
 def send_upload_request_to_server(name, chunks_amount, address, sock):
@@ -67,47 +50,3 @@ def send_upload_request_to_server(name, chunks_amount, address, sock):
             print('Request has timed out')
 
     return False
-
-
-def send_file_to_upload_to_server(chunks, address, sock):
-    sent_chunks = 0
-    total_chunks = len(chunks)
-    pending_chunks = total_chunks
-    timeouts = 0
-
-    retry = 0
-    while (timeouts < MAX_TIMEOUT and len(chunks) > 0):
-        print("sending with retry " + str(retry))
-        seq_numbs = list(chunks.keys())
-
-        for seq_numb in chunks.keys():
-            msg = chunks[seq_numb].encode(ENCODE_TYPE)
-            print('sending chunk {}'.format(seq_numb))
-            sock.sendto(msg, address)
-
-        for j in range(pending_chunks):
-            try:
-                server_response, addr = sock.recvfrom(CHUNK_SIZE)
-
-                acked_seq_numb = server_response.decode()
-
-                print('receiving ack chunk {}'.format(acked_seq_numb))
-
-                timeouts = 0
-                if acked_seq_numb in seq_numbs:
-                    sent_chunks += 1
-                    pending_chunks -= 1
-                    chunks.pop(acked_seq_numb)
-
-            except socket.timeout:
-                timeouts += 1
-                print('File sending has timed out')
-                continue
-        retry += 1
-
-    if timeouts >= MAX_TIMEOUT:
-        print('Could not send request to server. Program exiting')
-        sock.close()
-        exit(1)
-
-    print("File has sent successfully ")
