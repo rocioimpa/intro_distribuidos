@@ -17,7 +17,7 @@ def upload_file(server_address, src, name):
         chunks = parse_file_to_chunks(src)
 
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(1)
+        sock.settimeout(0.1)
 
         ack_from_server = send_upload_request_to_server(name, len(chunks),
                                                         server_address, sock)
@@ -72,41 +72,42 @@ def send_upload_request_to_server(name, chunks_amount, address, sock):
 def send_file_to_upload_to_server(chunks, address, sock):
     sent_chunks = 0
     total_chunks = len(chunks)
+    pending_chunks = total_chunks
     timeouts = 0
 
-    while (timeouts < MAX_TIMEOUT and sent_chunks < total_chunks):
+    retry = 0
+    while (timeouts < MAX_TIMEOUT and len(chunks) > 0):
+        print("sending with retry " + str(retry))
         seq_numbs = list(chunks.keys())
-        pending_chunks = total_chunks - sent_chunks
 
-        remaining_chunks = pending_chunks
-        if pending_chunks > WINDOW_SIZE:
-            remaining_chunks = WINDOW_SIZE
-
-        for i in range(remaining_chunks):
-            msg = chunks[seq_numbs[i]].encode(ENCODE_TYPE)
+        for seq_numb in chunks.keys():
+            msg = chunks[seq_numb].encode(ENCODE_TYPE)
+            print('sending chunk {}'.format(seq_numb))
             sock.sendto(msg, address)
 
-        for j in range(remaining_chunks):
+        for j in range(pending_chunks):
             try:
                 server_response, addr = sock.recvfrom(CHUNK_SIZE)
-                parsed_response = server_response.decode().split('|')
-                acked = bool(parsed_response[0])
-                acked_seq_numb = int(parsed_response[1])
-                if acked:
-                    print('File sent successfully!')
-                    sock.close()
-                    sys.exit(0)
+
+                acked_seq_numb = server_response.decode()
+
+                print('receiving ack chunk {}'.format(acked_seq_numb))
+
                 timeouts = 0
                 if acked_seq_numb in seq_numbs:
                     sent_chunks += 1
+                    pending_chunks -= 1
                     chunks.pop(acked_seq_numb)
 
             except socket.timeout:
                 timeouts += 1
                 print('File sending has timed out')
                 continue
+        retry += 1
 
     if timeouts >= MAX_TIMEOUT:
         print('Could not send request to server. Program exiting')
         sock.close()
         exit(1)
+
+    print("File has sent successfully ")

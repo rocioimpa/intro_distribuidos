@@ -1,12 +1,13 @@
 import sys
 import os
 import socket
+from random import randint, seed
 
 from constants import (OP_CODE_DOWNLOAD, OP_CODE_UPLOAD,
                        OP_CODE_DOWNLOAD_RESP, OP_CODE_UPLOAD_RESP,
                        CHUNK_SIZE, ENCODE_TYPE, SOCK_TIMEOUT, MAX_TIMEOUT)
 
-
+seed(1)
 def start_server(server_address, storage_dir):
     try:
         if not os.path.exists(storage_dir) or not os.path.isdir(storage_dir):
@@ -71,10 +72,14 @@ def receive_file(sock, address, storage_dir, filename, total_chunks):
             seq_numb, chunk = chunk.decode(ENCODE_TYPE).split('|')
 
             timeouts = 0
-            sock.sendto('{}|{}'.format('0', seq_numb).encode(), addr)
-            if seq_numb not in chunks:
-                chunks[seq_numb] = chunk
-                received_chunks += 1
+
+            #simulate timeout
+            x = randint(0, 10)
+            if x > 2:
+                sock.sendto('{}'.format(seq_numb).encode(), addr)
+                if seq_numb not in chunks:
+                    chunks[seq_numb] = chunk
+                    received_chunks += 1
 
         except socket.timeout:
             print('Socket timeout')
