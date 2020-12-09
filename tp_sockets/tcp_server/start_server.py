@@ -1,11 +1,12 @@
 import socket
 import os
+import sys
 from constants import (MESSAGE_SIZE, OP_CODE_UPLOAD, OP_CODE_DOWNLOAD,
                        ACK_SIZE_RECEIVED)
 from logger_config import configLogger, LOGGING_LEVEL_INFO
 
 
-logger = configLogger('server')
+logger = configLogger('tcp-server')
 
 
 def create_socket(server_address):
@@ -22,28 +23,43 @@ def start_server(server_address, storage_dir, verbose):
     if not bool(verbose):
         logger.setLevel(LOGGING_LEVEL_INFO)
 
-    print('TCP: start_server({}, {})'.format(server_address, storage_dir))
+    try:
+        if not os.path.exists(storage_dir) or not os.path.isdir(storage_dir):
+            logger.info('Invalid path to file: {} does not exist or \
+                         is not a valid directory'.format(storage_dir))
+            sys.exit(-1)
 
-    sock = create_socket(server_address)
-    sock.listen()
+        logger.info('TCP: start_server({}, {})'.format(server_address,
+                                                       storage_dir))
 
-    while True:
-        connection, address = sock.accept()
-        if not connection:
-            return close_socket(sock)
+        sock = create_socket(server_address)
+        sock.listen()
 
-        print("Connection from {}".format(address))
+        while True:
+            connection, address = sock.accept()
+            if not connection:
+                return close_socket(sock)
 
-        parsed_response = connection.recv(MESSAGE_SIZE).decode().split(',')
-        op_code = int(parsed_response[0])
-        file_name = parsed_response[1]
+            logger.debug("Connection from {}".format(address))
 
-        full_file_name = "{}/{}".format(storage_dir, file_name)
-        if op_code == OP_CODE_DOWNLOAD:
-            start_download(full_file_name, connection)
-        elif op_code == OP_CODE_UPLOAD:
-            file_size = int(parsed_response[2])
-            start_upload(full_file_name, file_size, connection)
+            parsed_response = connection.recv(MESSAGE_SIZE).decode().split(',')
+            op_code = int(parsed_response[0])
+            file_name = parsed_response[1]
+
+            full_file_name = "{}/{}".format(storage_dir, file_name)
+            if op_code not in (OP_CODE_DOWNLOAD, OP_CODE_UPLOAD):
+                logger.error('Operation received is not supported')
+                exit(-1)
+            if op_code == OP_CODE_DOWNLOAD:
+                start_download(full_file_name, connection)
+            elif op_code == OP_CODE_UPLOAD:
+                file_size = int(parsed_response[2])
+                start_upload(full_file_name, file_size, connection)
+
+    except KeyboardInterrupt:
+        logger.debug("Closing server after interrupt signal...")
+        sock.close()
+        sys.exit()
 
 
 def start_download(file_name, connection):
@@ -51,7 +67,7 @@ def start_download(file_name, connection):
     fp = open(file_name, "rb")
     size = os.path.getsize(file_name)
 
-    print("Sent file size: {}".format(size))
+    logger.debug("Sent file size: {}".format(size))
 
     connection.send(str(size).encode())
 

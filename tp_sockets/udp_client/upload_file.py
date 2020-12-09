@@ -7,7 +7,7 @@ from constants import (OP_CODE_UPLOAD, OP_CODE_UPLOAD_RESP, CHUNK_SIZE,
                        ENCODE_TYPE, MAX_TIMEOUT)
 from logger_config import configLogger, LOGGING_LEVEL_INFO
 
-logger = configLogger('upload-client')
+logger = configLogger('upload-client-udp')
 
 
 def upload_file(server_address, src, name, verbose):
@@ -37,6 +37,7 @@ def upload_file(server_address, src, name, verbose):
                 'Unable to send request to server. Terminating process...')
             sock.close()
             sys.exit(1)
+
     except KeyboardInterrupt:
         logger.debug(
             'KeyboardInterrupt signal received. Terminating process...')

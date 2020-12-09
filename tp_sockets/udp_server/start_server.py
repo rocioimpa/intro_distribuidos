@@ -11,7 +11,7 @@ from logger_config import configLogger, LOGGING_LEVEL_INFO
 
 seed(1)
 
-logger = configLogger('server')
+logger = configLogger('udp-server')
 
 
 def start_server(server_address, storage_dir, verbose):
