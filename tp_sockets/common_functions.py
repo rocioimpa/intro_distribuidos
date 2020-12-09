@@ -1,15 +1,27 @@
 import socket
 import os
 from random import randint
+import argparse
 
-from constants import (ENCODE_TYPE, OP_CODE_UPLOAD, OP_CODE_DOWNLOAD,
-                       OP_CODE_DOWNLOAD_RESP, OP_CODE_UPLOAD_RESP,
-                       CHUNK_SIZE, MAX_TIMEOUT, SOCK_TIMEOUT)
+from constants import (ENCODE_TYPE, CHUNK_SIZE, MAX_TIMEOUT, SOCK_TIMEOUT)
+from logger_config import configLogger, LOGGING_LEVEL_INFO
+
+logger = logger = configLogger('common')
 
 
-def op_code_is_valid(op_code):
-    return op_code in (OP_CODE_DOWNLOAD, OP_CODE_UPLOAD,
-                       OP_CODE_UPLOAD_RESP, OP_CODE_DOWNLOAD_RESP)
+def str2bool(v):
+    value = True
+    if isinstance(v, bool):
+        value = v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        value = True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        value = False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+    if not value:
+        logger.setLevel(LOGGING_LEVEL_INFO)
+    return value
 
 
 def parse_file_to_chunks(file):
@@ -45,12 +57,12 @@ def send_file(chunks, address, sock):
 
     retry = 0
     while (timeouts < MAX_TIMEOUT and len(chunks) > 0):
-        print("sending with retry " + str(retry))
+        logger.debug("Sending with retry " + str(retry))
         seq_numbs = list(chunks.keys())
 
         for seq_numb in chunks.keys():
             msg = chunks[seq_numb].encode(ENCODE_TYPE)
-            print('sending chunk {}'.format(seq_numb))
+            logger.debug('Sending chunk {}'.format(seq_numb))
             sock.sendto(msg, address)
 
         for j in range(pending_chunks):
@@ -59,7 +71,7 @@ def send_file(chunks, address, sock):
 
                 acked_seq_numb = server_response.decode()
 
-                print('receiving ack chunk {}'.format(acked_seq_numb))
+                logger.debug('Receiving ack chunk {}'.format(acked_seq_numb))
 
                 timeouts = 0
                 if acked_seq_numb in seq_numbs:
@@ -69,16 +81,16 @@ def send_file(chunks, address, sock):
 
             except socket.timeout:
                 timeouts += 1
-                print('File sending has timed out')
+                logger.debug('File sending has timed out')
                 continue
         retry += 1
 
     if timeouts >= MAX_TIMEOUT:
-        print('Could not send request to server. Program exiting')
+        logger.error('Could not send request to server. Program exiting')
         sock.close()
         exit(1)
 
-    print("File was sent successfully ")
+    logger.info("File was sent successfully")
 
 
 def receive_file(sock, address, storage_dir, filename, total_chunks):
@@ -103,17 +115,17 @@ def receive_file(sock, address, storage_dir, filename, total_chunks):
                     received_chunks += 1
 
         except socket.timeout:
-            print('Socket timeout')
+            logger.debug('Socket timeout')
             timeouts += 1
             continue
 
     if timeouts >= MAX_TIMEOUT:
-        print('Timeout limit has been reached. Could not receive file')
+        logger.debug('Timeout limit has been reached. Could not receive file')
         return 1
 
     sock.sendto(b'done', addr)
     try:
         write_file(chunks, storage_dir, filename)
-        print('File saved successfully')
+        logger.info('File saved successfully')
     except IOError:
-        print('There was an error when saving the file')
+        logger.error('There was an error when saving the file')

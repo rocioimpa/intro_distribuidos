@@ -1,6 +1,11 @@
 import socket
 import os
-from constants import *
+from constants import (MESSAGE_SIZE, OP_CODE_UPLOAD, OP_CODE_DOWNLOAD,
+                       ACK_SIZE_RECEIVED)
+from logger_config import configLogger, LOGGING_LEVEL_INFO
+
+
+logger = configLogger('server')
 
 
 def create_socket(server_address):
@@ -13,7 +18,10 @@ def close_socket(sock):
     sock.close()
 
 
-def start_server(server_address, storage_dir):
+def start_server(server_address, storage_dir, verbose):
+    if not bool(verbose):
+        logger.setLevel(LOGGING_LEVEL_INFO)
+
     print('TCP: start_server({}, {})'.format(server_address, storage_dir))
 
     sock = create_socket(server_address)
@@ -71,4 +79,3 @@ def start_upload(file_name, file_size, connection):
 def end_transfer(fp, connection):
     fp.close()
     connection.close()
-
