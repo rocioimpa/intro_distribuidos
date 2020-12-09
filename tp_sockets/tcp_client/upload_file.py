@@ -1,9 +1,16 @@
 import socket
 import os
-from constants import *
+from constants import OP_CODE_UPLOAD, MESSAGE_SIZE
+from logger_config import configLogger, LOGGING_LEVEL_INFO
 
 
-def upload_file(server_address, src, name):
+logger = configLogger('server')
+
+
+def upload_file(server_address, src, name, verbose):
+    if not bool(verbose):
+        logger.setLevel(LOGGING_LEVEL_INFO)
+
     print('TCP: upload_file({}, {}, {})'.format(server_address, src, name))
 
     fp = open(src, "rb")
