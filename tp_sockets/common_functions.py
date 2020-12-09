@@ -30,8 +30,8 @@ def parse_file_to_chunks(file):
     return chunks
 
 
-def write_file(chunks, storage, filename):
-    file = open(os.path.join(storage, filename), "wb")
+def write_file(chunks, file_path):
+    file = open(file_path, "wb")
     for i in range(0, len(chunks)):
         file.write(chunks[str(i)].encode(ENCODE_TYPE))
     file.close()
@@ -81,7 +81,7 @@ def send_file(chunks, address, sock):
     print("File was sent successfully ")
 
 
-def receive_file(sock, address, storage_dir, filename, total_chunks):
+def receive_file(sock, address, file_path, total_chunks):
     chunks = {}
     received_chunks = 0
     timeouts = 0
@@ -113,7 +113,7 @@ def receive_file(sock, address, storage_dir, filename, total_chunks):
 
     sock.sendto(b'done', addr)
     try:
-        write_file(chunks, storage_dir, filename)
+        write_file(chunks, file_path)
         print('File saved successfully')
     except IOError:
         print('There was an error when saving the file')

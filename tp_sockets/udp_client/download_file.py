@@ -30,7 +30,7 @@ def download_file(server_address, name, dst):
 
     total_chunks = int(response[1])
     send_message('ok', sock, server_address)
-    receive_file(sock, server_address, dst, name, total_chunks)
+    receive_file(sock, server_address, dst, total_chunks)
     sock.close()
 
 
