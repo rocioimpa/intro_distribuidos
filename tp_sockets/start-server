@@ -2,6 +2,7 @@
 import argparse
 from tcp_server.start_server import start_server as start_server_tcp
 from udp_server.start_server import start_server as start_server_udp
+from common_functions import str2bool
 
 def parse_arguments():
   parser = argparse.ArgumentParser()
@@ -10,6 +11,7 @@ def parse_arguments():
   parser.add_argument("-P", "--own-port", type=int, default=8080, help="el puerto que el servidor estará escuchando")
   parser.add_argument("-s", "--storage-dir", help="directorio donde se guardarán los archivos enviados por los clientes y donde se buscarán aquellos que quieran ser descargados", required=True)
   parser.add_argument("-p", "--protocol", help="el protocolo a utilizar para la comunicación", default="tcp", choices=['tcp', 'udp'])
+  parser.add_argument("-v", "--verbose", help="nivel de logging verboso", type=str2bool, default=True)
 
   return parser.parse_args()
 
@@ -18,9 +20,9 @@ def main():
   server_address = (args.own_host, args.own_port)
 
   if args.protocol == "tcp":
-    start_server_tcp(server_address, args.storage_dir)
+    start_server_tcp(server_address, args.storage_dir, args.verbose)
   elif args.protocol == "udp":
-    start_server_udp(server_address, args.storage_dir)
+    start_server_udp(server_address, args.storage_dir, args.verbose)
   else:
     raise Exception("protocolo invalido")
 
