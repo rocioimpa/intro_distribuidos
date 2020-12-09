@@ -28,7 +28,6 @@ def download_file(server_address, name, dst, verbose):
 
         request = '{}|{}'.format(OP_CODE_DOWNLOAD, name)
         ack_from_server, response = send_message(request, sock, server_address)
-
         response = response.split('|')
         if not ack_from_server:
             logger.error('Could not send request to server. Program exiting')
@@ -50,7 +49,6 @@ def download_file(server_address, name, dst, verbose):
             'KeyboardInterrupt signal received. Terminating process...')
         sock.close()
         sys.exit(0)
-
 
 def send_message(request, cli_socket, server_address):
     for i in range(MAX_TIMEOUT):
