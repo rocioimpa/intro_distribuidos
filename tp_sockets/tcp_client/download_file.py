@@ -1,37 +1,53 @@
 import socket
-from constants import OP_CODE_DOWNLOAD, MESSAGE_SIZE
+import sys
+import os
+from constants import OP_CODE_DOWNLOAD, MESSAGE_SIZE, ENCODE_TYPE
 from logger_config import configLogger, LOGGING_LEVEL_INFO
 
 
-logger = configLogger('server')
+logger = configLogger('download-client-tcp')
 
 
 def download_file(server_address, name, dst, verbose):
     if not bool(verbose):
         logger.setLevel(LOGGING_LEVEL_INFO)
 
-    logger.info('TCP: download_file({}, {}, {})'.format(server_address, name,
-                                                        dst))
+    try:
+        index = dst.rfind('/')
+        folder = dst[:index]
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(server_address)
+        if not os.path.exists(folder):
+            logger.debug("Creating destination folder")
+            os.makedirs(folder, exist_ok=True)
 
-    message = '{},{}'.format(OP_CODE_DOWNLOAD, name)
-    sock.send(message.encode('utf-8'))
-    sock.recv(MESSAGE_SIZE)
+        logger.info('TCP: download_file({}, {}, {})'.format(server_address,
+                                                            name, dst))
 
-    size = int(sock.recv(MESSAGE_SIZE).decode())
-    logger.debug("Received file size: {}".format(size))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(server_address)
 
-    fp = open(dst, "wb")
+        message = '{},{}'.format(OP_CODE_DOWNLOAD, name)
+        sock.send(message.encode('utf-8'))
+        sock.recv(MESSAGE_SIZE)
 
-    received = 0
-    while received < size:
-        chunk = sock.recv(MESSAGE_SIZE)
-        received += len(chunk)
-        fp.write(chunk)
+        size = int(sock.recv(MESSAGE_SIZE).decode(ENCODE_TYPE))
+        logger.debug("Received file size: {}".format(size))
 
-    end_transfer(fp, sock)
+        fp = open(dst, "wb")
+
+        received = 0
+        while received < size:
+            chunk = sock.recv(MESSAGE_SIZE)
+            received += len(chunk)
+            fp.write(chunk)
+
+        end_transfer(fp, sock)
+
+    except KeyboardInterrupt:
+        logger.debug(
+            'KeyboardInterrupt signal received. Terminating process...')
+        sock.close()
+        sys.exit(0)
 
 
 def end_transfer(fp, sock):
