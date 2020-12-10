@@ -34,8 +34,8 @@ def download_file(server_address, name, dst, verbose):
             sock.close()
             return exit(1)
 
-        if response == 'File not found':
-            logger.error('The requested file was not found in the server')
+        if response[0] == 'File not found':
+            logger.error('The requested file ({}) was not found in the server'.format(name))
             sock.close()
             return exit(1)
 

@@ -64,20 +64,26 @@ def start_server(server_address, storage_dir, verbose):
 
 def start_download(file_name, connection):
     connection.send(str(ACK_SIZE_RECEIVED).encode())
-    fp = open(file_name, "rb")
-    size = os.path.getsize(file_name)
 
-    logger.debug("Sent file size: {}".format(size))
+    if not os.path.exists(file_name):
+        logger.info('The requested file: {} does not exist'.format(file_name))
+        connection.send(str(-1).encode())
+        connection.close()
+    else:
+        fp = open(file_name, "rb")
+        size = os.path.getsize(file_name)
 
-    connection.send(str(size).encode())
+        logger.debug("Sent file size: {}".format(size))
 
-    while True:
-        chunk = fp.read(MESSAGE_SIZE)
-        if not chunk:
-            break
-        connection.send(chunk)
+        connection.send(str(size).encode())
 
-    end_transfer(fp, connection)
+        while True:
+            chunk = fp.read(MESSAGE_SIZE)
+            if not chunk:
+                break
+            connection.send(chunk)
+
+        end_transfer(fp, connection)
 
 
 def start_upload(file_name, file_size, connection):
