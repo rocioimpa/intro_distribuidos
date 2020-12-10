@@ -78,9 +78,19 @@ def start_download(file_name, connection, address):
         fp = open(file_name, "rb")
         size = os.path.getsize(file_name)
 
+        # Calculate the missing number of bytes
+        pad_size = MESSAGE_SIZE - len(str(size)) % MESSAGE_SIZE
+
+        # Add missing bytes with 'white spaces'
+        fixed_size = ("0" * pad_size) + str(size)
+
         logger.debug("Sent file size: {}".format(size))
 
-        connection.send(str(size).encode())
+        print(fixed_size)
+        # print(len(fixed_size.encode('utf-8')))
+        # print(int(fixed_size))
+
+        connection.send(str(fixed_size).encode())
 
         logger.debug("Starting tranmission")
         while True:
