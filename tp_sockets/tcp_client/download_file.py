@@ -31,17 +31,24 @@ def download_file(server_address, name, dst, verbose):
         sock.recv(MESSAGE_SIZE)
 
         size = int(sock.recv(MESSAGE_SIZE).decode(ENCODE_TYPE))
-        logger.debug("Received file size: {}".format(size))
 
-        fp = open(dst, "wb")
+        if size == -1:
+            logger.error("The requested file ({}) was not found in the server".format(name))
+            sock.close()
+            sys.exit(0)
 
-        received = 0
-        while received < size:
-            chunk = sock.recv(MESSAGE_SIZE)
-            received += len(chunk)
-            fp.write(chunk)
+        else:
+            logger.debug("Received file size: {}".format(size))
 
-        end_transfer(fp, sock)
+            fp = open(dst, "wb")
+
+            received = 0
+            while received < size:
+                chunk = sock.recv(MESSAGE_SIZE)
+                received += len(chunk)
+                fp.write(chunk)
+
+            end_transfer(fp, sock)
 
     except KeyboardInterrupt:
         logger.debug(
