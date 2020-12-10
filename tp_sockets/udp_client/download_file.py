@@ -21,8 +21,8 @@ def download_file(server_address, name, dst, verbose):
             logger.debug("Creating destination folder")
             os.makedirs(folder, exist_ok=True)
 
-        logger.info('UDP: download_file({}, {}, {})'.format(server_address, name, 
-                                                            dst))
+        logger.info('UDP: download_file({}, {}, {})'.format(server_address,
+                                                            name, dst))
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(SOCK_TIMEOUT)
 
@@ -35,7 +35,8 @@ def download_file(server_address, name, dst, verbose):
             return exit(1)
 
         if response[0] == 'File not found':
-            logger.error('The requested file ({}) was not found in the server'.format(name))
+            logger.error('The requested file ({}) was not found in the server'
+                         .format(name))
             sock.close()
             return exit(1)
 
@@ -49,6 +50,7 @@ def download_file(server_address, name, dst, verbose):
             'KeyboardInterrupt signal received. Terminating process...')
         sock.close()
         sys.exit(0)
+
 
 def send_message(request, cli_socket, server_address):
     for i in range(MAX_TIMEOUT):

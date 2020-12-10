@@ -51,9 +51,14 @@ def start_server(server_address, storage_dir, verbose):
                 logger.error('Operation received is not supported')
                 exit(-1)
             if op_code == OP_CODE_DOWNLOAD:
-                start_download(full_file_name, connection)
+                logger.debug("Received message requesting download from {}"
+                             .format(address))
+                start_download(full_file_name, connection, address)
             elif op_code == OP_CODE_UPLOAD:
                 file_size = int(parsed_response[2])
+                logger.debug(
+                    "Received message requesting download from {}, size: {}"
+                    .format(address, file_size))
                 start_upload(full_file_name, file_size, connection)
 
     except KeyboardInterrupt:
@@ -62,7 +67,7 @@ def start_server(server_address, storage_dir, verbose):
         sys.exit()
 
 
-def start_download(file_name, connection):
+def start_download(file_name, connection, address):
     connection.send(str(ACK_SIZE_RECEIVED).encode())
 
     if not os.path.exists(file_name):
@@ -77,10 +82,12 @@ def start_download(file_name, connection):
 
         connection.send(str(size).encode())
 
+        logger.debug("Starting tranmission")
         while True:
             chunk = fp.read(MESSAGE_SIZE)
             if not chunk:
                 break
+            logger.debug("Sending packet to address {}".format(address))
             connection.send(chunk)
 
         end_transfer(fp, connection)
@@ -90,6 +97,9 @@ def start_upload(file_name, file_size, connection):
     connection.send(str(ACK_SIZE_RECEIVED).encode())
     fp = open(file_name, "wb")
     received = 0
+
+    logger.debug("Receiving data")
+
     while received < file_size:
         chunk = connection.recv(MESSAGE_SIZE)
         received += len(chunk)
@@ -99,5 +109,6 @@ def start_upload(file_name, file_size, connection):
 
 
 def end_transfer(fp, connection):
+    logger.debug("Transfer completed, closing connection")
     fp.close()
     connection.close()

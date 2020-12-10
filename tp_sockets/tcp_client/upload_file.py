@@ -18,7 +18,8 @@ def upload_file(server_address, src, name, verbose):
                 is not a valid directory'.format(src))
             sys.exit(-1)
 
-        logger.info('TCP: upload_file({}, {}, {})'.format(server_address, src, name))
+        logger.info('TCP: upload_file({}, {}, {})'.format(server_address, src,
+                                                          name))
 
         fp = open(src, "rb")
         size = os.path.getsize(src)
@@ -27,6 +28,10 @@ def upload_file(server_address, src, name, verbose):
         sock.connect(server_address)
 
         message = '{},{},{}'.format(OP_CODE_UPLOAD, name, size)
+
+        logger.debug('Sending upload request to server {}'
+                     .format(server_address))
+
         sock.send(message.encode(ENCODE_TYPE))
         sock.recv(MESSAGE_SIZE)
 
@@ -34,6 +39,8 @@ def upload_file(server_address, src, name, verbose):
             chunk = fp.read(MESSAGE_SIZE)
             if not chunk:
                 break
+            logger.debug("Sending packet to address {}"
+                         .format(server_address))
             sock.send(chunk)
 
         end_transfer(fp, sock)

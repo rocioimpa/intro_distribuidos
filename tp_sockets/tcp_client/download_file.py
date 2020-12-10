@@ -30,10 +30,14 @@ def download_file(server_address, name, dst, verbose):
         sock.send(message.encode('utf-8'))
         sock.recv(MESSAGE_SIZE)
 
+        logger.debug('Sending download request to server {}'
+                     .format(server_address))
+
         size = int(sock.recv(MESSAGE_SIZE).decode(ENCODE_TYPE))
 
         if size == -1:
-            logger.error("The requested file ({}) was not found in the server".format(name))
+            logger.error("The requested file ({}) was not found in the server"
+                         .format(name))
             sock.close()
             sys.exit(0)
 
@@ -43,9 +47,11 @@ def download_file(server_address, name, dst, verbose):
             fp = open(dst, "wb")
 
             received = 0
+            logger.debug("Downloading file from {}".format(server_address))
             while received < size:
                 chunk = sock.recv(MESSAGE_SIZE)
                 received += len(chunk)
+                logger.debug("Received packet from {}".format(server_address))
                 fp.write(chunk)
 
             end_transfer(fp, sock)
