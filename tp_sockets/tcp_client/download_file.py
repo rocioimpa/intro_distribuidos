@@ -1,7 +1,8 @@
 import socket
 import sys
 import os
-from constants import OP_CODE_DOWNLOAD, MESSAGE_SIZE, ENCODE_TYPE, ACK_SIZE_RECEIVED
+from constants import OP_CODE_DOWNLOAD, MESSAGE_SIZE, ENCODE_TYPE, \
+    ACK_SIZE_RECEIVED
 from logger_config import configLogger, LOGGING_LEVEL_INFO
 
 

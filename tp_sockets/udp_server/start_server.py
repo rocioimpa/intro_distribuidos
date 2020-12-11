@@ -67,7 +67,8 @@ def start_server(server_address, storage_dir, verbose):
 
 def upload(filename, chunks_to_receive, sock, address, storage_dir):
     sock.sendto('{}'.format(OP_CODE_UPLOAD_RESP).encode(ENCODE_TYPE), address)
-    receive_file(sock, address, os.path.join(storage_dir, filename), chunks_to_receive)
+    receive_file(sock, address, os.path.join(storage_dir, filename),
+                 chunks_to_receive)
 
 
 def download(filename, sock, client_address, storage_dir):

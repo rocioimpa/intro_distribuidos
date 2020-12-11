@@ -1,6 +1,4 @@
 import socket
-import os
-from random import randint
 import argparse
 
 from constants import (ENCODE_TYPE, CHUNK_SIZE, MAX_TIMEOUT, SOCK_TIMEOUT)
@@ -106,13 +104,10 @@ def receive_file(sock, address, file_path, total_chunks):
 
             timeouts = 0
 
-            # simulate timeout
-            x = randint(0, 10)
-            if x > 2:
-                sock.sendto('{}'.format(seq_numb).encode(), addr)
-                if seq_numb not in chunks:
-                    chunks[seq_numb] = chunk
-                    received_chunks += 1
+            sock.sendto('{}'.format(seq_numb).encode(), addr)
+            if seq_numb not in chunks:
+                chunks[seq_numb] = chunk
+                received_chunks += 1
 
         except socket.timeout:
             logger.debug('Socket timeout')
