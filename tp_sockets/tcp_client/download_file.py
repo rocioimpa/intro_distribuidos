@@ -1,7 +1,7 @@
 import socket
 import sys
 import os
-from constants import OP_CODE_DOWNLOAD, MESSAGE_SIZE, ENCODE_TYPE
+from constants import OP_CODE_DOWNLOAD, MESSAGE_SIZE, ENCODE_TYPE, ACK_SIZE_RECEIVED
 from logger_config import configLogger, LOGGING_LEVEL_INFO
 
 
@@ -34,6 +34,7 @@ def download_file(server_address, name, dst, verbose):
                      .format(server_address))
 
         size = int(sock.recv(MESSAGE_SIZE).decode(ENCODE_TYPE))
+        sock.send(str(ACK_SIZE_RECEIVED).encode())
 
         if size == -1:
             logger.error("The requested file ({}) was not found in the server"

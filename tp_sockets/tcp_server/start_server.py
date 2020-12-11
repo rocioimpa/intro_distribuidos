@@ -91,6 +91,7 @@ def start_download(file_name, connection, address):
         # print(int(fixed_size))
 
         connection.send(str(fixed_size).encode())
+        connection.recv(MESSAGE_SIZE)
 
         logger.debug("Starting tranmission")
         while True:
