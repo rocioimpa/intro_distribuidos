@@ -1,15 +1,12 @@
 import sys
 import os
 import socket
-from random import seed
 
 from common_functions import parse_file_to_chunks, send_file, receive_file
 from constants import (OP_CODE_DOWNLOAD, OP_CODE_UPLOAD,
                        OP_CODE_DOWNLOAD_RESP, OP_CODE_UPLOAD_RESP,
                        CHUNK_SIZE, ENCODE_TYPE, SOCK_TIMEOUT, MAX_TIMEOUT)
 from logger_config import configLogger, LOGGING_LEVEL_INFO
-
-seed(1)
 
 logger = configLogger('udp-server')
 
