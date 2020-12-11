@@ -81,14 +81,10 @@ def start_download(file_name, connection, address):
         # Calculate the missing number of bytes
         pad_size = MESSAGE_SIZE - len(str(size)) % MESSAGE_SIZE
 
-        # Add missing bytes with 'white spaces'
+        # Add missing bytes with 'zero'
         fixed_size = ("0" * pad_size) + str(size)
 
         logger.debug("Sent file size: {}".format(size))
-
-        print(fixed_size)
-        # print(len(fixed_size.encode('utf-8')))
-        # print(int(fixed_size))
 
         connection.send(str(fixed_size).encode())
         connection.recv(MESSAGE_SIZE)
